@@ -1,0 +1,84 @@
+CoreASM PoolJobHandling
+
+/**
+ASSUMPTIONS:
+The algorithm demonstrates job handling of the Pooling Vm   auto-scaling mechanism.
+ This algorithm calls the JobInitRequiredFunctions module which in turns calls
+  the JobQueReqFunctions and the PredictiveJobHandling  and the JobHandlingVmRequest  modules. 
+The algorithm is expected to monitor the presences of the 
+Job Handling Resource (Reslist) for Predictive auto-scalers.
+This algorithm ensures that the quantity of vms generated are more or equal to what is expected(i.e. a vm pool is
+created and maintained) for job processing.
+
+
+
+*/
+
+use Standard
+use Modularity
+use Number
+
+include "./JobInitRequiredFunctions.casm"
+use Time
+
+
+//set program for the executing agent
+init InitRule
+	//----Initial rule ---
+rule InitRule =
+       local installJobs in seq  
+          par
+        
+            processState(Agents) := unde
+          jobstate :=started
+          installJobs := undef
+           terminate(self) := false
+            program(self) := @MainProgram   
+            endpar 
+            
+        endseq
+
+ rule MainProgram =
+      if not terminate(self) then
+
+	  par
+	  		
+	  		
+	  		Handle_Job
+	  		Check_VmPoolLevel
+	  		
+	  	print"-------------------------------"
+	  	 print"Output : Dur. of Simulation"
+	  	 print"Output : Average Queuing Time"
+	  	 print"Output : Avg. Utilization of PMs"
+	  		
+	  		terminate(self) := true
+		 
+	endpar         
+    else
+     program(self) :=undef
+
+
+rule Handle_Job =
+               par
+               seq
+                 while JobHReslist_P = active and VmPool = Qmax do {
+               systemstate:= active
+               
+               }
+                            
+                VmOpt_JobHandling_Module()
+                 endseq
+                  print "Joblauncher is to working now"
+               endpar
+               
+    rule Check_VmPoolLevel =
+                 par
+                    seq
+                     while vmpool >= MinQ do
+					 AddVM := true 
+                     mappedvm(job, vm):= true
+                     endseq
+                      systemstate:= active
+                     print "Vm Pool level is sufficient for processing to continue"
+                   endpar
