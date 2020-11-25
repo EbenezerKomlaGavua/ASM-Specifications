@@ -1,0 +1,71 @@
+CoreASM JobHandModPool
+
+//ASSUMPTIONS:
+//This is algorithm models the JobHandling Module for Vm Pooling algorithm of the ASM model.
+//The algorithm utilizes universes,Agents,signatures,functions and 
+//derived funtions in the modeling process.
+//The algorithm is expected to utilize specific derived function (JobQReslist_ip) creaed from 
+// generated jobs, existing vms,engaged processes and supplied resources for the modeling .
+//The algorithm must ensure that there is a pool of VMs is created to supply vms for the modelling process.
+// The modelling process is expectd to use essential modelling requirements such as process requests,
+// job requests;to map jobs to processes. These requirements are used to create a derived function called the
+// SystemState  to monitor change of states in  the model. VMs are expected to be selected when the system enters into the waiting stage.
+// Once VMs are selected, the job handling phase can commence.
+
+use Standard
+use Modularity
+use Time
+use Number
+
+
+include "./JobQueReqFunctions.casm"
+
+
+
+
+init InitRule
+	//----Initial rule ---
+rule InitRule =
+       local installJobs in seq  
+          par
+         // atmstatus := busy
+          print " Required cores are supplied "
+          print "Required nodes are supplied"
+          print "Execution Trace is supplied"
+          print "Scaling algorithm is present"
+          print"-------------------------------"
+          // processState:= undef 
+           processState := undef// new_mode
+          jobstate :=started
+          installJobs := undef
+           terminate(self) := false
+            program(self) := @MainProgram   
+            endpar 
+            
+        endseq
+
+ rule MainProgram =
+      if not terminate(self) then
+
+	  par
+	  		
+            Pooling_JobHandling_Module 
+		 	 terminate(self) := true
+		
+	endpar         
+    else
+     program(self) :=undef
+
+ 
+
+     rule Pooling_JobHandling_Module =
+           seq
+              par
+                if  JobQReslist_ip  = true  and vmpool = Qavg then{
+                   systemstate( JobState, ProcessState, JobTime) := idle 
+                   }
+                    print "System is ready but waiting for queuing to end"             
+                endpar
+                VmRequest()
+                   endseq
+
