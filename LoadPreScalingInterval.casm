@@ -1,0 +1,73 @@
+CoreASM PreScalingInterval
+
+use Standard
+use Modularity
+use Number
+
+/**
+ASSUMPTIONS:
+The objective of pre-scaling up is to find a optimal combination of virtual resources at different resource levels to
+handle increased requests. To model this aspect of the workload predicting mechanism, the JobInitRequiredFunction is called
+. Monitor Service Requets function is also called to initialize the job handling session since this stage occurs during the 
+job handling session. Once the Job Handling processes beings, the number of service requests that are expected are predicted.
+The  VM service utilisation levels are also called. If the  Vm service Utilisation of the next couple of services is higher than
+maximum utilisation levels, cost aware scaling up is executed. 
+
+J. Yang, C. Liu, Y. Shang, Z. Mao, J. Chen, Workload predicting-based automatic scaling in service clouds, in: 2013
+IEEE Sixth International Conference on Cloud Computing, IEEE, 2013, pp. 810815. doi:10.1109/cloud.2013.146.
+
+*/
+
+include "./JobInitRequiredFunctions.casm"
+use Time
+
+//set program for the executing agent
+init InitRule
+	//----Initial rule ---
+rule InitRule =
+       local installJobs in seq  
+          par
+        
+          processState(Agents) := undef// new_mode
+          jobstate :=started
+          installJobs := undef
+           terminate(self) := false
+            program(self) := @MainProgram   
+            endpar 
+            
+        endseq
+
+ rule MainProgram =
+      if not terminate(self) then
+
+	  par
+	     Scale_Virt_Resource_Down
+	  		
+	  	print"-------------------------------"
+	  	 print"Output : Dur. of Simulation"
+	  	 print"Output : Average Queuing Time"
+	  	 print"Output : Avg. Utilization of PMs"
+	  		
+	  		terminate(self) := true
+		
+	endpar         
+    else
+     program(self) :=undef
+
+// A prescaling up algorithm is modelled with this rule.
+
+
+         rule Scale_Virt_Resource_Down =
+                   par
+                          Monitor_Service_Requests()
+                      while (JobHReslist_P) do
+                  systemstate(JobState, ProcessState, JobTime):= active
+                  print "job resource is checked"
+                  Pred_NumofSerReq_(_t_+_1_) := active
+ 						Cal_VmUL_(_t_+_1_):= active
+ 				  print "Service Requests predicted"
+ 		        if   (|VmUl(t+1)| > |VmUTmax|) = true  then  
+                        Cost_aware_SU := active
+                     print " Pre-scaling at specific intervals done"  
+                 endpar                    
+
