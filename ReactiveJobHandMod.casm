@@ -1,0 +1,88 @@
+CoreASM ReactiveJobHandMod
+
+/**
+*ASSUMPTIONS:
+*To create an algorithm that can serves as bedrock for job handling for 
+*the reactive auto-scalers. The algorithm is expected to set out the 
+* the conditions required for job handling to commence.
+*This algorithm must model the transition from the queuing stage of 
+*the ASM model to the Job handling stage.
+*The algorithm is expected to initially check if the resources required for
+ *queuing are available. The requisite functions and system states for 
+*job queuing should be available and in an idle state.
+*The algorithm must choose vms from the set of VMs and map them to jobs
+ *for processing to commence.
+*/
+
+
+
+
+use Standard
+//use ModularityPlugin
+use ConditionalRule
+use Time
+use Modularity
+include "./JobQueReqFunctions.casm"
+
+//set program for the executing agent
+
+
+//Definition of universes
+
+enum TLevel = {Tmin, Tmax}
+
+
+
+
+
+init InitRule
+	//----Initial rule ---
+rule InitRule =
+       local installJobs in seq  
+          par
+          print " Required cores are supplied "
+          print "Required nodes are supplied"
+          print "Execution Trace is supplied"
+          print "Scaling algorithm is present"
+          print"-------------------------------"
+          // processState:= undef 
+           processState := undef// new_mode
+          jobstate :=started
+          installJobs := undef
+           terminate(self) := false
+            program(self) := @MainProgram   
+            endpar 
+            
+        endseq
+
+ rule MainProgram =
+      if not terminate(self) then
+
+	  par
+	  		
+        	Job_Queuing ()
+        	Select_Vms
+		 	 terminate(self) := true
+		
+	endpar         
+    else
+     program(self) :=undef
+
+
+        
+                
+      rule Select_Vms = {
+                // par
+                   if (Existing_Vms and Running_Time ) = true   then   
+                     if  installed(job, aresources) = true then 
+                     if mappedvm(job, vm)(job(JOB), vm(VM) = undef)  then // change this in the document. Do not combine the assignments
+                          choose vm in Agents do
+                          compatible(job, vm) := true
+                           belongsto(Belongsto):= true
+                           AddVM(vm, job) := true
+                           print "Vms choosen for processing"
+                      
+                 //  endpar 
+                 }
+               
+           
