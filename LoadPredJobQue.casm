@@ -1,0 +1,75 @@
+CoreASM LoadPredJobQue
+
+/**
+ASSUMPTIONS:
+This algorithm  is from the auto-scaler which investigates the problem of cost-
+aware autoscaling along with predicted workloads in service clouds. This algorithm is expected to 
+ modelJob Queuing algorithm of the auto-scaler.
+ The algorithm is expected to utilize the  JobInitRequiredFunctions module which calls the JobQueReqFunction module
+  to ensure that all services, time, processes and jobs are available before
+ the modelling commences. In the ASM modelling process, the algorithm is expected to ensure that,
+ workload Prediction is done, and the Vm Utilisation is at the minimum level before the job queuing commences.
+ Vms must be generated to meet the number of service requests made, so that the real time scaling can commence.
+ Two Rules,  Mapping_Functions() and the  Request_Functions() are called from the JobQueReqFunctions to demonstrate
+ the queuing stage of this algorithm.
+  
+*/
+
+use Standard
+use Modularity
+include "./JobInitRequiredFunctions.casm"
+use Time
+
+init InitRule
+	//----Initial rule ---
+rule InitRule =
+       local installJobs in seq  
+          par
+                 
+          print " Required cores are supplied "
+          print "Required nodes are supplied"
+          print "Execution Trace is supplied"
+          print "Scaling algorithm is present"
+          print"-----------------------------"
+           processState := undef
+          jobstate :=started
+          installJobs := undef
+           terminate(self) := false
+            program(self) := @MainProgram   
+            endpar 
+            
+        endseq
+
+  rule MainProgram =
+      if not terminate(self) then
+
+	  par
+	     
+        LoadPredict_Job_Queue
+		  terminate(self) := true
+		
+	endpar         
+    else
+     program(self) :=undef	
+  
+     rule LoadPredict_Job_Queue =
+              par
+                      workloadprediction:= true
+                 print "workload prediction executed"
+  // Requested Services and Existing services are supplied together with Job Queuing Resource List
+          while Supplied_Services and ServiceRequest(service, aresources) = true and JobQReslist_ip = active do
+                            systemstate(JobState, ProcessState, JobTime) := active
+                       while Supplied_Services do //change it in the original document
+    // The utilisation level of VMs currently running in the cloud is monitored
+                                  vmult := VmUTmin
+   // The number of service requests to ensure that the require threshold is supplied
+                                  number_of_service_requests := NumMin //change it in the original document
+                                  print "Adequate number of service requests "
+   // The number of VMs currently running in the cloud at the Tth interval is monitored
+                                  vmpool	:= Qminn
+                    systemstate(JobState, ProcessState, JobTime) := idle
+    //Job requests and Job mappings paused due to an idle system state
+                                    Mapping_Functions()
+	                               Request_Functions()
+                      print "Jobs are being queued"             
+                endpar
