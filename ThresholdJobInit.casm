@@ -1,0 +1,67 @@
+CoreASM ThresholdJobInit
+/**
+*ASSUMPTIONS:
+*This is algorithm models the Vmoptimising Job Initializing algorithm of the ASM model.
+*The algorithm utilizes universes,Agents,signatures,functions
+* and derived funtions in the modeling process.
+*The algorithm is expected to have generated jobs, existing vms,engaged processes 
+*and supplied resources  available before the modelling commences.
+* The job required initialization functions must be active. 
+* A joblauncher function created with which maps the jobhandler to a vms 
+*Jobhandler is expected to be mapped to ensure that job processing can be achieved.
+*When all the above holds; The systemstate function (which includes the JobState,Jobtime 
+*and the ProcessState) must be mapped to active.
+*/
+
+
+use Standard
+use Time
+use Modularity
+use Number
+include "./JobInitRequiredFunctions.casm"
+
+
+
+
+
+init InitRule
+	//----Initial rule ---
+rule InitRule =
+       local installJobs in seq  
+          par
+          print " Required cores are supplied "
+          print "Required nodes are supplied"
+          print "Execution Trace is supplied"
+          print "Scaling algorithm is present"
+           print"-------------------------------"
+          // processState:= undef 
+           processState := undef// new_mode
+          jobstate :=started
+          installJobs := undef
+           terminate(self) := false
+            program(self) := @MainProgram   
+            endpar 
+            
+        endseq
+
+ rule MainProgram =
+      if not terminate(self) then
+
+	  par
+	   
+	    JobInitRequiredFunctions ()
+        Threshold_JobInit
+		  terminate(self) := true
+		
+	endpar         
+    else
+     program(self) :=undef	
+     
+ 
+     
+       rule Threshold_JobInit =
+              par
+                if  JobIReslist_ip = true  and tlevel(TLevel) = Tmin then
+                   systemstate(JobState, ProcessState, JobTime) := active
+                    print "Threshold_JobInit Initializing"             
+                endpar
