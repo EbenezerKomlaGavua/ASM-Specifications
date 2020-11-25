@@ -1,0 +1,66 @@
+CoreModule  VmoptJobHandlingMod
+
+//use standard plugins
+use Standard
+
+//set program for the executing agent
+use Modularity
+//Definition of universes
+use Time
+include "./JobHandlingVmRequestMod.casm"
+
+enum Vmpool = {	Qminn, Qmaxx}
+enum VmUt = {T_900s, T_1800s, T_3600s,T_5400s}
+enum DestroyVm = {True, False}
+enum TimeRequest ={True_t, False_t}
+
+// definition of functions to be utilized in creating signatures and rules
+
+function vmpool : Vmpool -> BOOLEAN
+function compatible : job* vm -> NUMBER
+function AddVM :-> BOOLEAN
+function tlevel : TLevel -> BOOLEAN 
+function belongsto: Belongsto -> BOOLEAN
+
+                
+
+rule Job_Queuing =
+              par
+                if  JobQReslist_ip = true and joblauncher(jobhandler(job, vm), vm) = false and rvm(RVM) = Qavg then
+                   systemstate(JobState, ProcessState, JobTime) := idle
+                    print "VmOpt is in the Queuing stage"             
+                endpar
+
+
+rule VmOpt_JobHandling_Module =
+           seq
+              par
+                if  JobQReslist_ip = true  and rvm(RVM) = Qavg then{
+                   systemstate( JobState, ProcessState, JobTime) := idle 
+                   }
+                    print "System is ready but waiting for queuing to end"             
+                endpar
+                	VmRequest()
+                   endseq
+
+
+/**
+ASSUMPTIONS:
+This algorithm  a module for handling the jobHandling session of the auto-scaler which investigates the problem of cost-
+aware autoscaling along with predicted workloads in service clouds.
+The created rule "Monitor_Service_Requests" is expected to be called during the job handling sesssions
+to ensure that all requisite resources are provisioned for the autoscaling sessions to occur.
+
+*/
+rule LoadPred_JobHandling_Module =
+     par
+          while Supplied_Services and ServiceRequest(service, aresources) = true and JobQReslist_ip = active do
+                            systemstate(JobState, ProcessState, JobTime) := active
+                                          while Supplied_Services do  // change it in the original document
+                                             workloadprediction:= true
+                                          print "workload prediction is active"
+                                           vmult := VmUTmin
+                                    number_of_service_requests := NumMin		// change it in the original document	    
+ 										systemstate(JobState, ProcessState, JobTime) := active
+                                                        VmRequest()         
+                endpar
