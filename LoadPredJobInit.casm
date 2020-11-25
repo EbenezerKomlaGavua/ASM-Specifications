@@ -1,0 +1,96 @@
+CoreASM LoadPredJobInit
+
+/**
+ASSUMPTIONS:
+This algorithm  is from the auto-scaler which investigates the problem of cost-
+aware autoscaling along with predicted workloads in service clouds(Full title stated below). This algorithm is expected to 
+ model the Job initializing algorithm of the auto-scaler. The algorithm is expected to utilize the
+ JobInitRequiredFunctions to ensure that all services, time, processes and jobs are available before
+ the modelling commences. In the ASM modelling process, the algorithm is expected to ensure that,
+ workload Prediction is done, and the Vm Utilisation is at the minimum level before the job processing are initialized.
+ Vms must be generated to meet the number of service requests made, so that the real time scaling can commence.
+ One key element required for job initializing is the pre-scaling service. It is expected to be active 
+ to meet the demands of users of the cloud.
+ 
+ J. Yang, C. Liu, Y. Shang, Z. Mao, J. Chen, Workload predicting-based automatic scaling in service clouds, in: 2013
+IEEE Sixth International Conference on Cloud Computing, IEEE, 2013, pp. 810815. doi:10.1109/cloud.2013.146.
+*/
+
+
+use Standard
+use Modularity
+use Time
+include "./JobInitRequiredFunctions.casm"
+
+
+enum RtScaling = {ACTIVE_l, IDLE_l}
+enum Pre_scaling = {TRUE_l, FALSE_}
+
+
+function rtScaling: RtScaling -> BOOLEAN
+function pre_scaling: Pre_scaling -> BOOLEAN
+
+
+init InitRule
+	//----Initial rule ---
+rule InitRule =
+       local installJobs in seq  
+          par
+         // atmstatus := busy
+         
+          print " Required cores are supplied "
+          print "Required nodes are supplied"
+          print "Execution Trace is supplied"
+          print "Scaling algorithm is present"
+          print"-------------------------------"
+          
+           processState := undef// new_mode
+          jobstate :=started
+          installJobs := undef
+           terminate(self) := false
+            program(self) := @MainProgram   
+            endpar 
+            
+        endseq
+
+rule MainProgram =
+      if not terminate(self) then
+
+	  par
+	     LoadPJ_Initialisation
+		  terminate(self) := true
+		
+	endpar         
+    else
+     program(self) :=undef	
+     
+    derived CLOUD = Agents  
+     rule LoadPJ_Initialisation =
+                        par
+                        
+    //The workload Prediction must be executed for the job processing to be initialized.
+                         workloadprediction:= true  // change it in the original document
+      // Requested Services and Existing services are supplied together with Job Initializing Resource List
+                  while Supplied_Services and ServiceRequest(service, aresources) = true and JobIReslist_ip = active do
+                        systemstate(JobState, ProcessState, JobTime) := active
+    //All the services required for used to request are activated      
+                              forall s in [CLOUD] do
+                             
+                             print "workload prediction has been made"
+   // The utilisation level of VMs currently running in the cloud is monitored
+                             vmult(VmUlt) := VmUTmin
+   // The number of service requests to ensure that the require threshold is supplied
+                            number_of_service_requests := NumMin		// change it in the original document
+                   print "Number of service requests is sufficient"	
+    // The number of VMs currently running in the cloud at the Tth interval is monitored
+                             vmpool	:= Qminn
+   // Once the VM utilisation leve is at the required threshold, the quantity of VMs are sufficient
+   //and the number of service requests are adequest; real-time scaling commences at the Tth interval
+     						rtScaling:= activ          
+  // pre-scaling is also commenced at the (t+1)th interval 						
+                             pre_scaling:= active
+  // Active system state due to commenced job processing
+               systemstate(JobState, ProcessState, JobTime) := active
+                        print "Job initialisation has commenced"
+               endpar
+                      
