@@ -1,0 +1,76 @@
+CoreASM JobTermination
+
+
+/**
+ASSUMPTIONS:
+This algorithm is expected to model the job termination of auto-scaling mechanisms.
+The algorithm is expected to monitor the availability of resources and the requests for jobs.
+If these are in place, the jobOutcome is expected to display "success".However, when an external
+ event calls for the processing to be terminated, the jobstate will fail and the process state be 
+ must display stop.
+ Also, if there is job requests, but there are not resources to continue job processing(due to the job consumption),
+ then the jobTime is expected to display Completed, the jobstate show stopped and the event must record a terminate.
+*/
+
+use Standard
+use Modularity
+use Number
+
+enum JobOutcome = {Success, Fail}
+enum Task ={Starting, Aborted, Terminate}
+function jobOutCome: JobOutcome -> BOOLEAN
+function Event: task-> BOOLEAN
+
+include "./JobInitRequiredFunctions.casm"
+use Time
+
+init InitRule
+	//----Initial rule ---
+rule InitRule =
+       local installJobs in seq  
+          par
+          processState(Agents) := undef
+          jobstate :=started
+          installJobs := undef
+           terminate(self) := false
+            program(self) := @MainProgram   
+            endpar 
+            
+        endseq
+
+ rule MainProgram =
+      if not terminate(self) then
+
+	  par
+  		Monitor_Resources
+	  		Shutdown_When_Resources_Runout
+	  	   terminate(self) := true
+		 
+	endpar         
+    else
+     program(self) :=undef
+     
+// a rule to monitor the availability of adequate resources to ensure that job termination occurs normally.
+   rule Monitor_Resources =
+       par
+           if Job_Init_Resource_list_if = true and jobRequest(job(JOB), aresources) = true and jobRequest(job(JOB), aresources) = true then{
+                                                    JobState := processing 
+                                                    processState := running
+                                                     }
+                                           print "Job processing is taking place"        
+            while JobState = processing and processState = running and JobOutcome = Success  and Event(Task) = Terminate do {
+                                         JobState := failed
+                                          processState := stopped
+                                        }
+                                  print "Processing  has terminated"     
+                             endpar
+// A rule when models job termination due to total depletion of resources
+                                   
+rule Shutdown_When_Resources_Runout =
+            par
+                 if ( Generated_Jobs and Engaged_Processes) = false and   jobRequest(job(JOB), aresources) = true  and JobTime = completed then {
+                                    JobState := done
+                                 Event(Task) := Terminate    
+                                          }
+                              print "job processing completed and terminated"
+                     endpar  
