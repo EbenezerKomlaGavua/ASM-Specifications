@@ -1,0 +1,88 @@
+CoreASM VmoptJobHanding
+
+/**
+ASSUMPTIONS:
+This algorithm models the jobhandling of the Vm optisation auto-scaler. 
+This algorithm calls the JobInitRequiredFunctions module which in turns calls
+the JobQueReqFunctions and the PredictiveJobHandling  and the JobHandlingVmRequest  modules.
+The algorithm is expected to call the JobInitRequiredFunctions module which contains all the important universes, 
+functions and derived functions to run this algorithm.
+ The algorithm is expected to check for running time, placed timerequests and mapped vms.
+This algorithm expects that reusable Vms always above the average quantity.
+*/
+
+use Standard
+use Modularity
+
+include "./JobInitRequiredFunctions.casm"
+use Time
+
+
+
+//set program for the executing agent
+init InitRule
+	//----Initial rule ---
+rule InitRule =
+       local installJobs in seq  
+          par
+        
+          processState(Agents) := undef// new_mode
+          jobstate :=started
+          installJobs := undef
+           terminate(self) := false
+            program(self) := @MainProgram   
+            endpar 
+            
+        endseq
+
+ rule MainProgram =
+      if not terminate(self) then
+
+	  par
+	  		
+	  		Mapping_Functions ()
+	  		Mapping_Functions()
+	  		Handle_Job
+	  		Reuse_Vms
+	  	print"-------------------------------"
+	  	 print"Output : Dur. of Simulation"
+	  	 print"Output : Average Queuing Time"
+	  	 print"Output : Avg. Utilization of PMs"
+	  		
+	  		terminate(self) := true
+		
+	endpar         
+    else
+     program(self) :=undef
+   
+  
+    
+     rule Handle_Job =
+               par
+                 while JobHReslist_P do {
+                mappedjob:= true
+              
+                 JobState := running
+                 JobTime := processing
+            processState(Agents) := running
+               }
+                Job_Queuing()
+                VmOpt_JobHandling_Module()
+                 print "Joblauncher is to working now"
+                 
+                 
+               endpar   
+             
+    rule Reuse_Vms =
+            par
+            
+            while |RVM| >= |Qavg| do {
+            mappedjob(job, process) := vm
+        
+            systemState := active
+                
+             } 
+             print "Virtual Machines can be reused"
+             endpar   
+             
+     
