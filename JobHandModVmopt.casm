@@ -1,0 +1,65 @@
+CoreASM JobHandModVmopt
+
+/**
+ASSUMPTIONS:
+This is algorithm models the JobHandling Module for Vm Optimisation algorithm of the ASM model.
+The algorithm utilizes universes,Agents,signatures,functions and derived funtions in the modeling process.
+The algorithm is expected to utilize specific derived function (JobQReslist_ip) creaed from 
+ generated jobs, existing vms,engaged processes and supplied resources for the modeling .
+The algorithm must ensure that there is reusing of VMs to ensure efficient vms usage for the modelling to continue.
+ The modelling process is expectd to use essential modelling requirements such as process requests,
+ job requests;to map jobs to processes. These requirements are used to create a derived function called the
+ SystemState  to monitor change of states in  the model.VMs are expected to be selected when the system enters into the waiting stage.
+ Once VMs are selected, the job handling phase can commence.
+*/
+use Standard
+use ModularityPlugin
+use Time
+
+include "./JobQueReqFunctions.casm"
+
+ 
+init InitRule
+	//----Initial rule ---
+rule InitRule =
+       local installJobs in seq  
+          par
+           print " Required cores are supplied "
+          print "Required nodes are supplied"
+          print "Execution Trace is supplied"
+          print "Scaling algorithm is present"
+          print"-------------------------------"
+          
+           processState := undef
+          jobstate :=started
+          installJobs := undef
+           terminate(self) := false
+            program(self) := @MainProgram   
+            endpar 
+            
+        endseq
+
+ rule MainProgram =
+      if not terminate(self) then
+
+	  par
+	  		JobHandling_Module_Vmopt
+		 	 terminate(self) := true
+		
+	endpar         
+    else
+     program(self) :=undef
+
+
+
+
+     rule JobHandling_Module_Vmopt =
+           seq
+              par
+                if  JobQReslist_ip = true  and rvm(RVM) = Qavg then{
+                   systemstate( JobState, ProcessState, JobTime) := IDLE 
+                   }
+                    print "System is ready but waiting for queuing to end"             
+                endpar
+                 VmRequest()
+                   endseq
