@@ -50,8 +50,8 @@ rule InitRule =
       if not terminate(self) then
 
 	  par
-	  		
-	  		
+	  		 JobInitRequiredFunctions()
+	  		Predictive_JobHandling_Module()
 	  		Handle_Job
 	  		Check_ThresholdLevel
 	  		
@@ -69,30 +69,31 @@ rule InitRule =
     
      rule Handle_Job =
                par
+                JobInitRequiredFunctions := active
                  while JobHReslist_P = active and tlevel = Tmax do {
-               systemstate:= active
+               systemstate:= busy
+              
                
                }
                               
-                VmOpt_JobHandling_Module()
-                 
+                             
                   print "Joblauncher is to working now"
                endpar
         
-      rule Check_ThresholdLevel =
-                    par
-                      if (|CurrentVmThreshold| < |Tavg|) = true then
-                      DestroyVm := true
-                      if (|CurrentVmThreshold| > |Tavg|) = true then{
-                         AddVM := true
-                        }
-                     else          
-                      if ((|CurrentVmThreshold| < |Tavg|) = true ) and ((currentVmPosition(CurrentVmPosition) = VmL) = true) then
-                         VmTime := CurrentTime + 3600
-                          systemstate:= active
-                       print "Current Threshold level is sufficient and jobs processing now"  
-                      
-                      endpar
+  rule Check_ThresholdLevel =
+      par
+          if (|CurrentVmThreshold| < |Tavg|) = true then
+                 DestroyVm := true
+                if (|CurrentVmThreshold| > |Tavg|) = true then{
+                    AddVM(vm, job) := true
+                     }
+                  else          
+          if ((|CurrentVmThreshold| < |Tavg|) = true ) and ((currentVmPosition(CurrentVmPosition) = VmL) = true) then
+                   VmTime := CurrentTime + 3600
+                   systemstate:= active
+                print "Current Threshold level is sufficient and jobs processing now"  
+                     
+                endpar
                
                            
                     
