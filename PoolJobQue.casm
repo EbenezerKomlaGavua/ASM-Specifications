@@ -53,14 +53,24 @@ rule MainProgram =
 	    VmPool_Duration
        VmPool_JobQue
 		  terminate(self) := true
-		
+		 
 	endpar         
     else
      program(self) :=undef	
      
-     
-         
-    //checking to see if the utilisation of the vms in the pool exceeds 1 hour.             
+/**     
+* The JobQRelist_ip is compared to "active" because it has already been compared to "true" 
+*in the JobQueReqFunctions.casm module. Once JobQRelist_ip is active, it means the resources are available     
+*/ 
+   rule VmPool_JobQue =
+              par
+                if  JobQReslist_ip  = active  and vmpool = Qavg then
+                   systemstate(JobState, ProcessState, JobTime) := active
+                    print "VmPool_JobQue is in the Queuing stage"             
+                endpar
+                
+                
+ //checking the utilisation level of the vms in the pool to determine if any exceeds the 1 hour (3600 seconds) mark.             
        rule VmPool_Duration =
                     par
                     if vmpool(Vmpool) = Qavg and (|VmUt| < 3600) = true then {
@@ -68,12 +78,3 @@ rule MainProgram =
                      }
                      print "Vm Utilisation time exceeded one hour "
                    endpar  
-                                  
-                   
-
-     rule VmPool_JobQue =
-              par
-                if  JobQReslist_ip  = true  and vmpool = Qavg then
-                   systemstate(JobState, ProcessState, JobTime) := active
-                    print "VmPool_JobQue is in the Queuing stage"             
-                endpar
