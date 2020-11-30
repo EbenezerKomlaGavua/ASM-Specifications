@@ -47,8 +47,8 @@ rule MainProgram =
 
 	  par
 	  
-	   // Required_functions
-	   JobInitRequiredFunctions ()
+	  
+        JobInitRequiredFunctions ()//All this point jobRequests,processRequests,mappedVM,mappedJobs and installJobs are mapped to "true"
         VmCreate_JobInit
 		  terminate(self) := true
 		
@@ -56,9 +56,16 @@ rule MainProgram =
     else
      program(self) :=undef	
  
-     rule VmCreate_JobInit =
-              par
-                if  JobIReslist_ip = true  and tlevel = Tmin then
+ /**     
+* The JobIRelist_ip is compared to "active" because it has already been compared to "true" 
+*in the JobQueReqFunctions.casm module. Once JobIRelist_ip is active, it means the resources are available     
+*/ 
+ 
+ 
+ 
+ rule VmCreate_JobInit =
+      par
+           if  JobIReslist_ip = active  and tlevel = Tmin then
                    systemstate(JobState, ProcessState, JobTime) :=  active
                     print "VmCreate_JobInit Initializing"             
                 endpar
