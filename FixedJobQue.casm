@@ -74,7 +74,7 @@ whilst the processes are also mapped to the aresources.
 
 rule Job_and_Process_Requesting = 
   par
-           if jobRequest(job(JOB), aresources) = true and processRequests(process(PROCESS), aresources) = true and mappedjob(job(JOB), process(PROCESS)) = true  then {
+    if jobRequest(job(JOB), aresources) = true and processRequests(process(PROCESS), aresources) = true and mappedjob(job(JOB), process(PROCESS)) = true  then {
                 JobTime := waiting
                   } 
                                         
@@ -88,7 +88,7 @@ rule Job_and_Process_Requesting =
   rule Map_Vms_and_Jobhandler =
                   par 
                   
-                  if  mapppedvm(job(JOB), vm(VM))  = false and jobhandler(job(JOB), vm(VM)) = false   then { //change this in the document "change undef to false"
+                  if  mapppedvm(job(JOB), vm(VM))  = false and jobhandler(job(JOB), vm(VM)) = false   then { 
                       JobState := waiting 
                     
                       }
