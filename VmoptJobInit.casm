@@ -45,7 +45,7 @@ rule InitRule =
 
 	  par
 	  
-	  
+	  JobInitRequiredFunctions ()//All this point jobRequests,processRequests,mappedVM,mappedJobs and installJobs are mapped to "true"
         VmOpt_Job_Init 
 		  terminate(self) := true
 		
@@ -56,9 +56,12 @@ rule InitRule =
      rule VmOpt_Job_Init =
    
               par
-                if  Job_Init_Resource_list_if = true and joblauncher(jobhandler(job, vm), vm) = true and rvm = Qmin then
+                if  Job_Init_Resource_list_if = active and joblauncher(jobhandler(job, vm), vm) = true then
+                  if installed(job(JOB), vm) = true and rvm = Qmin then
                    systemstate(JobState, ProcessState, JobTime) := active
                     print "VmOpt Initializing"             
+               
+               
                 endpar
               
                  
