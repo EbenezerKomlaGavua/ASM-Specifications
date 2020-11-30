@@ -18,7 +18,7 @@ enum TimeRequest ={True_t, False_t}
 
 function vmpool : Vmpool -> BOOLEAN
 function compatible : job* vm -> NUMBER
-function AddVM :-> BOOLEAN
+function AddVM :vm * job -> BOOLEAN
 function tlevel : TLevel -> BOOLEAN 
 function belongsto: Belongsto -> BOOLEAN
 
@@ -32,10 +32,10 @@ rule Job_Queuing =
                 endpar
 
 
-rule VmOpt_JobHandling_Module =
+rule Predictive_JobHandling_Module =
            seq
               par
-                if  JobQReslist_ip = true  and rvm(RVM) = Qavg then{
+                if  JobQReslist_ip = active   then{
                    systemstate( JobState, ProcessState, JobTime) := idle 
                    }
                     print "System is ready but waiting for queuing to end"             
