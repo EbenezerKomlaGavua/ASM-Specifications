@@ -69,7 +69,7 @@ rule InitRule =
  // Ensure that all the jobhandling resource list is available.
                        while (JobHReslist_P) do
  // The  current Vm Utilisation threshold should be higher than the stated maximum utilisation limit
-                  while (|VmUlt| > |VmUTmax|) = true do 
+                  if (|VmUlt| > |VmUTmax|) = true then
                   systemstate(JobState, ProcessState, JobTime):= active
                   print "job resource is checked"
                       print "job handling launched"  
