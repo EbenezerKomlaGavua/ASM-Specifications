@@ -1,8 +1,8 @@
-CoreASM ReactiveJobHandMod
+CoreModule ReactiveJobHandMod
 
 /**
 *ASSUMPTIONS:
-*To create an algorithm that can serves as bedrock for job handling for 
+*To create an algorithm that is a module which serves as bedrock for job handling for 
 *the reactive auto-scalers. The algorithm is expected to set out the 
 * the conditions required for job handling to commence.
 *This algorithm must model the transition from the queuing stage of 
@@ -22,67 +22,31 @@ use Standard
 use ConditionalRule
 use Time
 use Modularity
-include "./JobQueReqFunctions.casm"
-
-//set program for the executing agent
-
-
-//Definition of universes
-
-enum TLevel = {Tmin, Tmax}
 
 
 
-
-
-init InitRule
-	//----Initial rule ---
-rule InitRule =
-       local installJobs in seq  
-          par
-          print " Required cores are supplied "
-          print "Required nodes are supplied"
-          print "Execution Trace is supplied"
-          print "Scaling algorithm is present"
-          print"-------------------------------"
-          // processState:= undef 
-           processState := undef// new_mode
-          jobstate :=started
-          installJobs := undef
-           terminate(self) := false
-            program(self) := @MainProgram   
-            endpar 
-            
-        endseq
-
- rule MainProgram =
-      if not terminate(self) then
-
-	  par
-	  		
-        	Job_Queuing ()
-        	Select_Vms
-		 	 terminate(self) := true
-		
-	endpar         
-    else
-     program(self) :=undef
 
 
         
                 
-      rule Select_Vms = {
-                // par
+      rule Reactive_Select_Vms = {
+                
                    if (Existing_Vms and Running_Time ) = true   then   
-                     if  installed(job, aresources) = true then 
-                     if mappedvm(job, vm)(job(JOB), vm(VM) = undef)  then // change this in the document. Do not combine the assignments
+                     if  installed(job, aresources) = false then 
+                     if mappedvm(job, vm)(job(JOB), vm(VM) = false)  then 
                           choose vm in Agents do
                           compatible(job, vm) := true
                            belongsto(Belongsto):= true
                            AddVM(vm, job) := true
+                           mapppedvm(job(JOB), vm(VM))  := true
                            print "Vms choosen for processing"
                       
-                 //  endpar 
+                   
                  }
                
-           
+           rule Reactive_Job_Queuing =
+              par
+                if   JobQReslist_if  = active and jobhandler(job(JOB), vm(VM)) = false then
+                   systemstate(JobState, ProcessState, JobTime) := idle
+                    print "Auto-scaler is in the Queuing stage"             
+                endpar
