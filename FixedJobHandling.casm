@@ -24,13 +24,7 @@ init InitRule
 rule InitRule =
        local installJobs in seq  
           par
-     
-          print " Required cores are supplied "
-          print "Required nodes are supplied"
-          print "Execution Trace is supplied"
-          print "Scaling algorithm is present"
-          print"-------------------------------"
-          
+      
            processState(Agents) := undef
           jobstate :=started
           installJobs := undef
@@ -46,8 +40,8 @@ rule InitRule =
 	  par
 	  		Request_Functions()
 	  		Mapping_Functions()
-	  		Job_Queuing()
-	  		Select_Vms()
+	  		Reactive_Job_Queuing()
+	  		Reactive_Select_Vms()
 	  		Handle_Job
 	  	print"-------------------------------"
 	  	 print"Output : Dur. of Simulation"
@@ -69,16 +63,16 @@ rule InitRule =
      rule Handle_Job =
          par
           while (time = Running_Time) and timeRequest(process, job) = true and mappedvm(job, vm) != undef do {
-          InstallJobs()
+          InstallJobs()//installed(job(JOB), vm) = true
           
-            Event(t)
+            Event(t) // Event = true is expressed in the derived function on line 82
             JobState := running
             JobTime := processing
             processState(Agents) := running
             }
          
            
-           Map_Jobhandler()
+           Map_Jobhandler()//jobhandler(job(JOB), vm(VM)) = true
            
             print "jobs are currently being processed"
         
