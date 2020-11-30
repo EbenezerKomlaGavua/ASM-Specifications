@@ -54,7 +54,7 @@ rule InitRule =
 		 JobRequest
 		//Map_Jobs
 		 Map_Vms_and_Jobs
-		InstallJobs_andMap_Jobhandler
+		InstallJobs_and_Map_Jobhandler
 		terminate(self) := true
 		
 	endpar         
@@ -95,11 +95,11 @@ whilst the processes are also mapped to the aresources.
  Jobhandling begins when there a vms for the generated jobs. Jobs are installed as tasks.
  The mapped vms and jobs are processed through the activities of the jobhandler. 
  */         
-       rule InstallJobs_andMap_Jobhandler  =
+       rule InstallJobs_and_Map_Jobhandler  =
                   par 
                   
-                  if   installed(job(JOB), aresources) = true and jobhandler(job(JOB), vm(VM)) = true  then {
-                      JobTime :=started // change this in the document. Do not combine the assignments
+                  if   installed(job(JOB), vm) = true and jobhandler(job(JOB), vm(VM)) = true  then {
+                      JobTime :=started 
                       JobState := submitted
                       }
                       print "jobs installed as tasks and jobhandler is active"
