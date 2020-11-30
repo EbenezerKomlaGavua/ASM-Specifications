@@ -53,10 +53,17 @@ rule InitRule =
 	endpar         
     else
      program(self) :=undef	
+
+/**     
+* The JobQRelist_ip is compared to "active" because it has already been compared to "true" 
+*in the JobQueReqFunctions.casm module. Once JobQRelist_ip is active, it means the resources are available     
+*/ 
+
+
         
      rule VmOpt_Job_Queue =
               par
-                if  JobQReslist_ip = true and joblauncher(jobhandler(job, vm), vm) = false and rvm(RVM) = Qavg then
+                if  JobQReslist_ip = active and joblauncher(jobhandler(job, vm), vm) = false and rvm(RVM) = Qavg then
                    systemstate(JobState, ProcessState, JobTime) := idle
                     print "VmOpt is in the Queuing stage"             
                 endpar
