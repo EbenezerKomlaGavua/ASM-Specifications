@@ -19,6 +19,7 @@ derived Job_Handling_Req = (( Existing_Vms and Running_Time = true) and  (instal
                           compatible(job, vm) := true
                            belongsto(Belongsto):= true
                            AddVM := true
+                           mapppedvm(job(JOB), vm(VM))  := true
                            print "Vms choosen for processing"
                        
                        
