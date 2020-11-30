@@ -42,8 +42,8 @@ rule InitRule =
       if not terminate(self) then
 
 	  par
-	  		
-	  		
+	  		 JobInitRequiredFunctions()
+	  		Predictive_JobHandling_Module()
 	  		Handle_Job
 	  		Check_VmPoolLevel
 	  		
@@ -62,13 +62,14 @@ rule InitRule =
 rule Handle_Job =
                par
                seq
+               JobInitRequiredFunctions := active
                  while JobHReslist_P = active and VmPool = Qmax do {
-               systemstate:= active
+               systemstate:= busy
+                
                
                }
                             
-                VmOpt_JobHandling_Module()
-                 endseq
+                                endseq
                   print "Joblauncher is to working now"
                endpar
                
