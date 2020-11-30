@@ -50,8 +50,8 @@ rule MainProgram =
 
 	  par
 	
-	 JobInitRequiredFunctions ()
-       VmPool_JobInit
+	 JobInitRequiredFunctions ()//All this point jobRequests,processRequests,mappedVM,mappedJobs and installJobs are mapped to "true"
+             VmPool_JobInit
 		  terminate(self) := true
 		
 	endpar         
@@ -59,9 +59,13 @@ rule MainProgram =
      program(self) :=undef	
      
      
+ /**     
+* The JobIRelist_ip is compared to "active" because it has already been compared to "true" 
+*in the JobQueReqFunctions.casm module. Once JobIRelist_ip is active, it means the resources are available     
+*/ 
  
 
-     rule VmPool_JobInit =
+  rule VmPool_JobInit =
               par
                 if JobIReslist_ip = true  and vmpool = Qminn then
                    systemstate(JobState, ProcessState, JobTime) := active
