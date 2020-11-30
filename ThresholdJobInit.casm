@@ -49,14 +49,18 @@ rule InitRule =
 
 	  par
 	   
-	    JobInitRequiredFunctions ()
-        Threshold_JobInit
+	 JobInitRequiredFunctions () //All this point jobRequests,processRequests,mappedVM,mappedJobs and installJobs are mapped to "true"
+              Threshold_JobInit
 		  terminate(self) := true
 		
 	endpar         
     else
      program(self) :=undef	
      
+ /**     
+* The JobIRelist_ip is compared to "active" because it has already been compared to "true" 
+*in the JobQueReqFunctions.casm module. Once JobIRelist_ip is active, it means the resources are available     
+*/ 
  
      
        rule Threshold_JobInit =
