@@ -83,12 +83,12 @@ derived Job_Init_Resource_list_if =(Existing_Vms and Engaged_Processes and Runni
 //A derived function for the predictive autoscalars made up of the Job_Init_Resource_list_if and the joblauncher
 derived JobIReslist_ip =(Job_Init_Resource_list_if and joblauncher(jobhandler, vm) and installed(job(JOB), vm) = true)
 //This will reduce the repetition of the above mentioned functions.
-derived Job_Init_ReqFunctions = (jobRequest(job, aresources) and processrequests(process, aresources) and mappedjob(job, process) and mappedvm and installed(job, aresources) = true)
+derived Job_Init_ReqFns = (jobRequest(job, aresources) and processrequests(process, aresources) and mappedjob(job, process) and mappedvm and installed(job, aresources) = true)
 // derived systemstate = (jobtime and jobstate and processState)
  derived JobHReslist_P =   ((time = Running_Time) and (timeRequest(process, job) = true) and  joblauncher(jobhandler, vm) = true)
  rule  JobInitRequiredFunctions =
                  par
-                    if Job_Init_ReqFunctions = true then
+                    if Job_Init_ReqFns = true then
                     systemstate(JobState, ProcessState, JobTime) := active
                     print "Required functions are active"
                    endpar
@@ -96,7 +96,7 @@ derived Job_Init_ReqFunctions = (jobRequest(job, aresources) and processrequests
 
 // defining the rule used for selecting vms when the modelling enters the queuing stage
  rule Select_Vms = {
-                // par
+              
                    if (Existing_Vms and Running_Time = true )  then   
                      if  installed(job, aresources) = true then 
                      if mappedvm(job, vm)(job(JOB), vm(VM) = undef)  then 
@@ -106,12 +106,12 @@ derived Job_Init_ReqFunctions = (jobRequest(job, aresources) and processrequests
                            AddVM := true
                            print "Vms choosen for processing"
                       
-                 //  endpar 
+                 
                  }
          rule InstallJobs  =
                    par
                     
-                    if installed(job(JOB), aresources) = true and jobhandler(job(JOB), vm(VM)) = true then {
+                    if installed(job(JOB), aresources) = true  then {
                      JobTime :=started 
                      JobState := submitted
                       }
@@ -123,7 +123,7 @@ derived Job_Init_ReqFunctions = (jobRequest(job, aresources) and processrequests
                   par 
                   
                   if jobhandler(job(JOB), vm(VM)) = true  then {
-                      JobTime :=started // change this in the document. Do not combine the assignments
+                      JobTime :=started 
                       JobState := submitted
                       }
                       print "jobhandler is active"
