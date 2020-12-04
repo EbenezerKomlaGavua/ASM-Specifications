@@ -41,7 +41,7 @@ rule InitRule =
 	  par
 	  		
 	  		
-	  	 JobInitRequiredFunctions()
+	  	 InitRequiredFunctions()
 	  	 Predictive_JobHandling_Module
 	  		Handle_Job
 	  		Reuse_Vms
