@@ -86,7 +86,7 @@ derived JobIReslist_ip =(Job_Init_Resource_list_if and joblauncher(jobhandler, v
 derived Job_Init_ReqFns = (jobRequest(job, aresources) and processrequests(process, aresources) and mappedjob(job, process) and mappedvm and installed(job, aresources) = true)
 // derived systemstate = (jobtime and jobstate and processState)
  derived JobHReslist_P =   ((time = Running_Time) and (timeRequest(process, job) = true) and  joblauncher(jobhandler, vm) = true)
- rule  JobInitRequiredFunctions =
+ rule  InitRequiredFunctions =
                  par
                     if Job_Init_ReqFns = true then
                     systemstate(JobState, ProcessState, JobTime) := active
