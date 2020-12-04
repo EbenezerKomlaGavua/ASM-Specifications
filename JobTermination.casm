@@ -71,8 +71,9 @@ rule InitRule =
                                    
 rule Shutdown_When_Resources_Runout =
    par
-    if ( Generated_Jobs and Engaged_Processes) = false and   jobRequest(job(JOB), aresources) = true  and JobTime = completed then {
+    if ( Generated_Jobs and Engaged_Processes) = false and   jobRequest(job(JOB), aresources) = true  then {
                                     JobState := done
+                                   JobTime := completed 
                                  Event(Task) := Terminate    
                                           }
                               print "job processing completed and terminated"
