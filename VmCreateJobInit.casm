@@ -48,7 +48,7 @@ rule MainProgram =
 	  par
 	  
 	  
-        JobInitRequiredFunctions ()//All this point jobRequests,processRequests,mappedVM,mappedJobs and installJobs are mapped to "true"
+        InitRequiredFunctions ()//All this point jobRequests,processRequests,mappedVM,mappedJobs and installJobs are mapped to "true"
         VmCreate_JobInit
 		  terminate(self) := true
 		
