@@ -42,7 +42,7 @@ rule InitRule =
       if not terminate(self) then
 
 	  par
-	  		 JobInitRequiredFunctions()
+	  		 InitRequiredFunctions()
 	  		Predictive_JobHandling_Module()
 	  		Handle_Job
 	  		Check_VmPoolLevel
