@@ -17,10 +17,10 @@ aware autoscaling along with predicted workloads in service clouds. This algorit
 
 use Standard
 use Modularity
-include "./JobInitRequiredFunctions.casm"
+include "./JobInitReqFunMod.casm"
 use Time
 
-derived CLOUD = Agents  
+derived CLOUDs = Agents  
 
 init InitRule
 	//----Initial rule ---
@@ -47,25 +47,25 @@ rule InitRule =
 
 	  par
 	     
-        LoadPredict_Job_Queue
+        LoadPJobQueue
 		  terminate(self) := true
 		
 	endpar         
     else
      program(self) :=undef	
   
-     rule LoadPredict_Job_Queue =
+     rule LoadPJobQueue =
               par
-                      workloadprediction:= true
+                      workloadpred:= true
                  print "workload prediction executed"
   // Requested Services and Existing services are supplied together with Job Queuing Resource List
           while Supplied_Services and ServiceRequest(service, aresources) = true and JobQReslist_ip = active do
                             systemstate(JobState, ProcessState, JobTime) := active
                             while JobQReslist_ip = active do
                        forall s in [CLOUD] do     // The utilisation level of VMs currently running in the cloud is monitored
-                                  vmult := VmUTmin
+                                 vmult(VMUlt) := VMUtmin
    // The number of service requests to ensure that the require threshold is supplied
-                                  number_of_service_requests_t := NumMin //change it in the original document
+                                  NumofSerReqt := NumMin
                                   print "Adequate number of service requests "
    // The number of VMs currently running in the cloud at the Tth interval is monitored
                                   vmpool	:= Qminn
