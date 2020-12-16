@@ -1,0 +1,130 @@
+CoreModule JobInitReqFunMod
+
+use Standard
+use Time
+use Modularity
+
+/**
+ASSUMPTIONS
+This is a coreModule for the ASM model, it represents the Initial Phase where all the various 
+functions are defined before job processing commences. This module is expected to be included/called into 
+most of the specifications since it provides the initial status of the universes, functions and signatures.
+
+*/
+//set program for the executing agent
+
+
+include "./JobQueReqFunMod.casm"
+
+
+//Definition of universes
+universe Agents = {VM,PROCESS,ARESOURCES,JOB,TIME,SERVICE}
+enum cores ={core1, core2, core3, core4}
+enum nodes = {node1, node2, node3, node4}
+enum Trace ={execution_trace}
+enum Scaling_Algorithm = {scaling_algorithm}
+enum ARESOURCE = {aresources}
+enum JobState = {submitted,waiting,running,failed,done}
+enum JobTime = {started,processing,stopped,completed}
+enum ProcessState ={new_mode, ready_mode, waiting_mode, running_mode, stopped_mode}
+enum Res_listStates = {ACTIVE, IDLE}
+enum RVM = {Qmin, Qavg, Qmax}
+enum systemState ={busy,idle}
+enum VmUlt = {VmUTmin, VmUTavg, VmUTmax}
+enum Number_Of_Service_Requests ={NumMin, NumAvg, NumMax}
+enum JobIReslist= {Active_if, Idle_if}
+enum TLevel ={Tmin, Tavg, Tmax}
+enum WorkLoadPrediction = {TRUE, FALSE}
+enum VMpool = {	QMinn, QMaxx}
+enum selfhealing_su = {ACTIVE_sl, IDLE_sl}
+enum  WorkLoad_Prediction  = {TRUE_wp, FALSE_wp}
+
+
+// definition of functions to be utilized in creating signatures and rules
+function controlled state: ProcessState -> BOOLEAN
+function job:JOB -> NUMBER
+function time: TIME -> NUMBER
+function  process: PROCESSES -> NUMBER
+function vm : VM -> NUMBER
+function aresource:ARESOURCE -> BOOLEAN
+function controlled jobstate : -> JobState 
+function controlled jobtime :-> JobTime
+function controlled vmult :VmUlt -> NUMBER
+function number_of_service_requests:Number_Of_Service_Requests -> NUMBER
+function controlled processState : Agents-> BOOLEAN
+function jobRequest: job *aresources -> NUMBER
+function controlled jobhandler : job * vm -> NUMBER
+function processrequests:  process * aresources -> NUMBER
+function installed : job * vm -> NUMBER
+function mappedjob : job * process -> NUMBER
+function workloadpred:WorkLoad_Prediction -> NUMBER
+function mapppedvm : job * vm -> NUMBER
+function terminate : Agents -> BOOLEAN
+function rvm : RVM -> BOOLEAN 
+function res_liststates:Res_listStates -> BOOLEAN
+function joblauncher: jobhandler * vm -> NUMBER
+function systemstate :JobState* ProcessState *JobTime -> BOOLEAN // This is utilized when all the three state functions must be assigned to true
+function CurrentVmThreshold :-> NUMBER
+function vmPool: VMpool -> NUMBER
+function ServiceRequest : service * aresources -> NUMBER
+
+//definition of the derived functions made up of logic function and boolean expressions to enable effective comparisions
+derived Existing_Vms = (exists vm in Agents with VM = true)
+derived Engaged_Processes = (exists process in Agents with PROCESS = true)
+derived Running_Time =(exists time in Agents with TIME = true)
+derived Generated_Jobs = (exists job in Agents with JOB = true)
+derived Supplied_Resources = (exists aresource in Agents with ARESOURCE = true) 
+derived Supplied_Services = (exists service in Agents with SERVICE = true) 
+// The above derived functions are combined into a single derived function with the aid of operators to simply
+// modelling process
+derived Job_Init_Resource_list_if =(Existing_Vms and Engaged_Processes and Running_Time  and Generated_Jobs and Supplied_Resources = true)
+//A derived function for the predictive autoscalars made up of the Job_Init_Resource_list_if and the joblauncher
+derived JobIReslist_ip =(Job_Init_Resource_list_if and joblauncher(jobhandler(job, vm), vm) and installed(job(JOB), vm) = true)
+//This will reduce the repetition of the above mentioned functions.
+derived Job_Init_ReqFns = (jobRequest(job, aresources) and processrequests(process, aresources) and mappedjob(job, process) and mappedvm and installed(job, aresources) = true)
+// derived systemstate = (jobtime and jobstate and processState)
+ derived JobHReslist_P =   ((time = Running_Time) and (timeRequest(process, job) = true) and  joblauncher(jobhandler(job, vm), vm) = true)
+ rule  InitReqFunctions =
+                 par
+                    if Job_Init_ReqFns = true then
+                    systemstate(JobState, ProcessState, JobTime) := active
+                    print "Required functions are active"
+                   endpar
+
+
+// defining the rule used for selecting vms when the modelling enters the queuing stage
+ rule Select_Vms = {
+              
+                   if (Existing_Vms and Running_Time = true )  then   
+                     if  installed(job, aresources) = true then 
+                     if mappedvm(job, vm)(job(JOB), vm(VM) = false)  then 
+                          choose vm in Agents do
+                          compatible(job, vm) := true
+                           belongsto(Belongsto):= true
+                           AddVM := true
+                           print "Vms choosen for processing"
+                      
+                 
+                 }
+         rule InstallJobs  =
+                   par
+                    
+                    if installed(job(JOB), aresources) = true  then {
+                     JobTime :=started 
+                     JobState := submitted
+                      }
+                      print "jobs installed as tasks and jobhandler is active"
+                      
+                  endpar
+
+ rule Jobhandler =
+                  par 
+                  
+                  if jobhandler(job(JOB), vm(VM)) = true  then {
+                      JobTime :=started 
+                      JobState := submitted
+                      }
+                      print "jobhandler is active"
+                      
+                  endpar
+           
