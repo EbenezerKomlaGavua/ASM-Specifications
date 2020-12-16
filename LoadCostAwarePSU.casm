@@ -1,0 +1,88 @@
+CoreASM CostAwarePreScalingUp
+
+use Standard
+use Modularity
+use Number
+
+/**
+ASSUMPTIONS:
+The objective of pre-scaling up is to find a optimal combination of virtual resources at different resource levels to
+handle increased requests. The self-healing scaling correlates with the real-time state of VMs closely, so it is not be used
+in the pre-scaling step.
+The algorithm is expected to use the JobInitRequiredFunctions to supplied all the necessary universes and functions. This algorithm is 
+expected to use the ASM modelling without generating any errors.
+
+J. Yang, C. Liu, Y. Shang, Z. Mao, J. Chen, Workload predicting-based automatic scaling in service clouds, in: 2013
+IEEE Sixth International Conference on Cloud Computing, IEEE, 2013, pp. 810815. doi:10.1109/cloud.2013.146.
+*/
+
+enum Rlevel_SU = {R_ACTIVE, R_IDLE}
+enum VMlevel_SU ={ENGAGED, NOT_ENGAGED}
+
+//Signatures specific to this specification
+function rlevel_su:Rlevel_SU -> NUMBER
+function vmlevel_su:VMlevel_SU -> NUMBER
+function NumOfRequests :-> NUMBER
+function SmallestVm_SU :-> NUMBER
+
+/**
+The JobQueReqFunctions module is called to supply all the functions required by this specification 
+to model the cost aware prescaling up
+*/
+include "./JobQueReqFunMod.casm"
+use Time
+
+  derived Agents_Scaling_up =   (Rlevel_SU = active) or   (VMlevel_SU = active)   
+
+//set program for the executing agent
+init InitRule
+	//----Initial rule ---
+rule InitRule =
+       local installJobs in seq  
+          par
+        
+          processState(Agents) := undef// new_mode
+          jobstate :=started
+          installJobs := undef
+           terminate(self) := false
+            program(self) := @MainProgram   
+            endpar 
+            
+        endseq
+
+ rule MainProgram =
+      if not terminate(self) then
+  par
+	  	 	CostAwarePreSU
+	  		terminate(self) := true
+	endpar         
+    else
+     program(self) :=undef
+        
+        
+ rule CostAwarePreSU  =
+                   par
+                   seq
+   //The Job handling module is called to supplied all the requisite resources and services for running this algorithm.
+                            MonitorSerReq()
+                      while (JobHReslist_P) do
+                  systemstate(JobState, ProcessState, JobTime):= active
+                  print "job resource is checked"
+   // Once the requisite resources are checked, VMlevel scaling up is executed to ensure that service requests can be met.
+                      vmlevel_su(VMlevel_SU) := ENGAGED
+ 						
+ 				  print "Service Requests predicted"
+ 				endseq
+ //Compare the quantity of Requests made by users of the services
+ 		        if   (|NumOfRequests| > 0) = true then 
+//Compare the quantity of requests made to the quantity of resources provided for the cloud services
+ 		           if (|SuppResources| < |NumOfRequests|) = true  then  {
+//Once the services and the number of requests have been compared, the smallest VMs are scaled up
+							SmallestVm_SU := active }
+				else {
+					         Agents_Scaling_up := true
+                             }
+ 		           endif
+			          print "Cost_aware Pre-scaling at specific intervals is  achieved"
+       endpar                    
+
