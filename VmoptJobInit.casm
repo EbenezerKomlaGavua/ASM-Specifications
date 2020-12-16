@@ -12,7 +12,7 @@ CoreASM VmoptJobInit
 *When all the above holds; The systemstate function (which includes the JobState,Jobtime and the ProcessState) must be mapped to active.
 */
 use Modularity
-include "./JobInitRequiredFunctions.casm"
+include "./JobInitReqFunMod.casm"
 
 use Standard
 use Time
@@ -45,7 +45,7 @@ rule InitRule =
 
 	  par
 	  
-	  JobInitRequiredFunctions ()//All this point jobRequests,processRequests,mappedVM,mappedJobs and installJobs are mapped to "true"
+	  InitReqFunctions ()//All this point jobRequests,processRequests,mappedVM,mappedJobs and installJobs are mapped to "true"
         VmOpt_Job_Init 
 		  terminate(self) := true
 		
