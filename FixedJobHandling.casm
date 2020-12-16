@@ -12,7 +12,7 @@ jobhandling. The key components of the modellings such as state transitions are 
 use Standard
 use Modularity
 
-include "./JobInitRequiredFunctions.casm"
+include "./JobInitReqFunMod.casm"
 use Time
 
  function started_t:->NUMBER
@@ -41,8 +41,8 @@ rule InitRule =
 	  		Request_Functions()
 	  		Mapping_Functions()
 	  		Reactive_Job_Queuing()
-	  		Reactive_Select_Vms()
-	  		Handle_Job
+	  		ReactSelectVms()
+	  		HandleJob
 	  	print"-------------------------------"
 	  	 print"Output : Dur. of Simulation"
 	  	 print"Output : Average Queuing Time"
@@ -60,19 +60,19 @@ rule InitRule =
 */
   
   
-     rule Handle_Job =
+     rule HandleJob =
          par
-          while (time = Running_Time) and timeRequest(process, job) = true and mappedvm(job, vm) != undef do {
-          InstallJobs()//installed(job(JOB), vm) = true
+          while (time = Running_Time) and timeRequest(process, job) = true and mappedvm(job, vm) = true do {
+          InstallJobs()					//installed(job(JOB), vm) = true
           
-            Event(t) // Event = true is expressed in the derived function on line 82
+            Event(t)						 // Event = true is expressed in the derived function on line 82
             JobState := running
             JobTime := processing
             processState(Agents) := running
             }
          
            
-           Map_Jobhandler()//jobhandler(job(JOB), vm(VM)) = true
+           Jobhandler()                  //jobhandler(job(JOB), vm(VM)) = true
            
             print "jobs are currently being processed"
         
