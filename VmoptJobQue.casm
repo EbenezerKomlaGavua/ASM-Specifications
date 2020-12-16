@@ -18,8 +18,8 @@ This will cause the modelling to enter into the queuing stage.
 use Standard
 use Time
 use Modularity
-//include "./JobQueReqFunctions.casm"
-include "./JobInitRequiredFunctions.casm"
+
+include "./JobInitReqFunMod.casm"
 init InitRule
 	//----Initial rule ---
 rule InitRule =
@@ -47,7 +47,7 @@ rule InitRule =
 	  par
 	    Mapping_Functions()
 	    Request_Functions()
-        VmOpt_Job_Queue
+        VmOptJobQueue
 		  terminate(self) := true
 		
 	endpar         
@@ -61,7 +61,7 @@ rule InitRule =
 
 
         
-     rule VmOpt_Job_Queue =
+     rule VmOptJobQueue =
               par
                 if  JobQReslist_ip = active and joblauncher(jobhandler(job, vm), vm) = false and rvm(RVM) = Qavg then
                    systemstate(JobState, ProcessState, JobTime) := idle
