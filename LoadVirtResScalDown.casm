@@ -1,0 +1,77 @@
+CoreASM VirtualResScalingDown
+
+use Standard
+use Modularity
+use Number
+
+/**
+ASSUMPTIONS:
+This specification models the vms resource scaling down of the workload prediction autoscaler(find full name below) when the service utilisation is below the maximum or upper utilisation
+threshold. The specification is expected to call the jobInitRequiredFunctions and execute two main procedures.
+When  the vm service utilisation is below the maximum threshold, vm utilisation is scaled down together with the 
+resource level. 
+Since this event occurs during the job processing session of this autoscaler, the monitor resources function
+in the loadPredJobHandlingMod module is called.
+
+
+J. Yang, C. Liu, Y. Shang, Z. Mao, J. Chen, Workload predicting-based automatic scaling in service clouds, in: 2013
+IEEE Sixth International Conference on Cloud Computing, IEEE, 2013, pp. 810815. doi:10.1109/cloud.2013.146.
+*/
+
+
+
+include "./JobInitReqFunMod.casm"
+use Time
+
+
+
+//set program for the executing agent
+init InitRule
+	//----Initial rule ---
+rule InitRule =
+       local installJobs in seq  
+          par
+        
+          processState(Agents) := undef// new_mode
+          jobstate :=started
+          installJobs := undef
+           terminate(self) := false
+            program(self) := @MainProgram   
+            endpar 
+            
+        endseq
+
+ rule MainProgram =
+      if not terminate(self) then
+
+	  par
+	  		
+	  		
+	  		
+	  	   ScalVirResDown
+	  		
+	  	print"-------------------------------"
+	  	 print"Output : Dur. of Simulation"
+	  	 print"Output : Average Queuing Time"
+	  	 print"Output : Avg. Utilization of PMs"
+	  		
+	  		terminate(self) := true
+		
+	endpar         
+    else
+     program(self) :=undef
+                
+         rule ScalVirResDown =
+                   par
+                           MonitorSerReq()
+                 while (JobHReslist_P) do
+                  systemstate(JobState, ProcessState, JobTime):= active
+                  print "job resource has been checked"
+                 if   (|VmUlt| < |VmUTmax|) = true  then  
+                           VMLevel_SD := active
+                  if   (|VmUlt| < |VmUTmin|) = true  then
+                             RLevel_SD := active
+                     print " Virtual Resource Scaling Down  is active"  
+                 endpar                    
+
+
