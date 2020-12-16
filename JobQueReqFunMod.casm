@@ -1,0 +1,45 @@
+CoreModule JobQueReqFunctions
+
+//use standard plugins
+use Standard
+
+//set program for the executing agent
+
+include "./PredictJobHandMod.casm"
+include "./ReactJobHandMod.casm"
+use Modularity
+use Time
+
+enum JobQReslist= {Active_i, Idle_i}
+
+ /**
+derived function specifically for the job queuing stage. It varies from the function utilized in the job initialisation
+since some of the conditions in this stage halt due to the unavailability of VMs.
+*/
+derived JobQReslist_if =(Existing_Vms  and Engaged_Processes and Running_Time and Generated_Jobs and Supplied_Resources = true)
+derived JobQReslist_ip =((JobQReslist_if)=true and (joblauncher(jobhandler, vm) = false))
+
+//Job and process requests are mapped to true however, the absence of VMs maps jobs and VMs to false.
+derived Job_Que_ReqFunctions = (jobRequest(job, aresources) and processrequests(process, aresources)  = true)
+derived Job_Que_MapFunctions = ( mappedjob(job, process) and mappedvm(job, vm) = false )
+
+
+
+rule Mapping_Functions =
+                      par
+                     if Job_Que_MapFunctions = true then {
+                     JobTime := stopped
+                     JobState := waiting
+                     }
+                          print "jobs mapping paused"
+                   endpar
+
+       rule Request_Functions =
+                    par
+                     if Job_Que_ReqFunctions = true then {
+                      processState:=ready_mode
+                     }
+               print "jobs requests paused"
+                     endpar
+
+
