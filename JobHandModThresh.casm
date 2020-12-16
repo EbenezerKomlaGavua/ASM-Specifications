@@ -17,7 +17,7 @@ job requests;to map jobs to processes. These requirements are used to create a d
 
 use Standard
 use Modularity
-include "./JobQueReqFunctions.casm"
+include "./JobQueReqFunMod.casm"
 use Time
 
 // A specific set required by this auto-scaler to check the threshold level of virtual machines
