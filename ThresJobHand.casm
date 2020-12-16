@@ -1,0 +1,101 @@
+CoreASM ThresJobHandling
+
+/**
+ASSUMPTIONS:
+The algorithm demonstrates job handling of the threshold auto-scaling mechanism.
+ This algorithm calls the JobInitRequiredFunctions module which inturns calls
+  the JobQueReqFunctions and the PredictiveJobHandling and VmRequest modules. 
+The algorithm is expected to monitor the presences of the 
+Job Handling Resource (Reslist) for Predictive auto-scalers.
+The threshold level of Vms must be at the maximum level to keep the processing active.
+The current Threshold of VMs must be lower than the average threshold, 
+the VMs are destroyed. And also, if the current threshold is lower than the
+ average threshold but the vm is the last vm, it is given an hour to continue processing
+If the utilisation threshold is higher than the average, more Vms are added.
+
+*/
+
+use Standard
+use Modularity
+use Number
+
+include "./JobInitReqFunMod.casm"
+use Time
+
+enum CurrentVmPosition ={vmF, VmL}
+enum VmUL = {UtVMmin, UtVMavg,UtVMmax}
+//enum Utvm
+function currentVmPosition :CurrentVmPosition -> NUMBER
+function CurrentTime:-> NUMBER
+function  VmTime: -> NUMBER
+
+//set program for the executing agent
+init InitRule
+	//----Initial rule ---
+rule InitRule =
+       local installJobs in seq  
+          par
+        
+         
+           processState(Agents) := undef// new_mode
+          jobstate :=started
+          installJobs := undef
+           terminate(self) := false
+            program(self) := @MainProgram   
+            endpar 
+            
+        endseq
+
+ rule MainProgram =
+      if not terminate(self) then
+
+	  par
+	  		 InitReqFunctions()
+	  		Pred_JobHand_Mod()
+	  		HandleJob
+	  		ThresLevel
+	  		
+	  	print"-------------------------------"
+	  	 print"Output : Dur. of Simulation"
+	  	 print"Output : Average Queuing Time"
+	  	 print"Output : Avg. Utilization of PMs"
+	  		
+	  		terminate(self) := true
+		 
+	endpar         
+    else
+     program(self) :=undef
+     
+    
+     rule HandleJob =
+               par
+                while JobHReslist_P = active and tlevel = Tmax do {
+               systemstate:= busy
+              
+               
+               }
+                              
+                             
+                  print "Joblauncher is to working now"
+               endpar
+        
+  rule ThresLevel =
+      par
+          if (|CurrentVmThreshold| < |Tavg|) = true then
+                 DestroyVm := true
+                if (|CurrentVmThreshold| > |Tavg|) = true then{
+                    AddVM(vm, job) := true
+                     }
+                  else          
+          if ((|CurrentVmThreshold| < |Tavg|) = true ) and ((currentVmPosition(CurrentVmPosition) = VmL) = true) then
+                   VmTime := CurrentTime + 3600
+                   systemstate:= active
+                print "Current Threshold level is sufficient and jobs processing now"  
+                     
+                endpar
+               
+                           
+                    
+               
+                  
+      
