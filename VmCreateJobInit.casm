@@ -16,7 +16,7 @@ When all the above holds; The systemstate function (which includes the JobState,
 use Standard
 use Modularity
 use Time
-include "./JobInitRequiredFunctions.casm"
+include "./JobInitReqFunMod.casm"
 
 
 
@@ -48,7 +48,7 @@ rule MainProgram =
 	  par
 	  
 	  
-        InitRequiredFunctions ()//All this point jobRequests,processRequests,mappedVM,mappedJobs and installJobs are mapped to "true"
+        InitReqFunctions ()//All this point jobRequests,processRequests,mappedVM,mappedJobs and installJobs are mapped to "true"
         VmCreate_JobInit
 		  terminate(self) := true
 		
