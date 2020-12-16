@@ -19,7 +19,7 @@ use Time
 //set program for the executing agent
 
 use Modularity
-include "./JobInitRequiredFunctions.casm"
+include "./JobInitReqFunMod.casm"
 
 
 
@@ -33,7 +33,7 @@ rule InitRule =
           print "Execution Trace is supplied"
           print "Scaling algorithm is present"
           print"-----------------------------"
-          processState := undef// new_mode
+          processState(Agents) := undef// new_mode
           jobstate :=started
           installJobs := undef
            terminate(self) := false
@@ -68,7 +68,7 @@ rule InitRule =
       par
          if (Supplied_Resources and Generated_Jobs and Running_Time and Engaged_Processes and Existing_Vms) then 
          ProcessState(self) := ready_mode
-            print "Resources Checked available"
+            print "Required Resources are available"
          
          endpar 
 /**
@@ -98,7 +98,7 @@ whilst the processes are also mapped to the aresources.
        rule InstallJobs_and_Map_Jobhandler  =
                   par 
                   
-                  if   installed(job(JOB), vm) = true and jobhandler(job(JOB), vm(VM)) = true  then {
+                  if   installed(job(JOB), vm(VM)) = true and jobhandler(job(JOB), vm(VM)) = true  then {
                       JobTime :=started 
                       JobState := submitted
                       }
