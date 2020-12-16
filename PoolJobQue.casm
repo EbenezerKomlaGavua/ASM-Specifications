@@ -21,7 +21,7 @@ use Time
 use Number
 
 
-include "./JobInitRequiredFunctions.casm"
+include "./JobInitReqFunMod.casm"
 
 
 init InitRule
@@ -50,7 +50,7 @@ rule MainProgram =
 	  par
 	  Mapping_Functions()
 	    Request_Functions()
-	    VmPool_Duration
+	    VmDuration
        VmPool_JobQue
 		  terminate(self) := true
 		 
@@ -71,10 +71,10 @@ rule MainProgram =
                 
                 
  //checking the utilisation level of the vms in the pool to determine if any exceeds the 1 hour (3600 seconds) mark.             
-       rule VmPool_Duration =
+       rule VmDuration =
                     par
                     if vmpool(Vmpool) = Qavg and (|VmUt| < 3600) = true then {
                      DestroyVm := true
                      }
-                     print "Vm Utilisation time exceeded one hour "
+                     print "Vms unused duration  below one hour "
                    endpar  
