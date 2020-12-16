@@ -18,7 +18,7 @@ use Standard
 use Time
 use Modularity
 use Number
-include "./JobInitRequiredFunctions.casm"
+include "./JobInitReqFunMod.casm"
 
 
 
@@ -49,7 +49,7 @@ rule InitRule =
 
 	  par
 	   
-	 JobInitRequiredFunctions () //All this point jobRequests,processRequests,mappedVM,mappedJobs and installJobs are mapped to "true"
+	 InitReqFunctions () //All this point jobRequests,processRequests,mappedVM,mappedJobs and installJobs are mapped to "true"
               Threshold_JobInit
 		  terminate(self) := true
 		
