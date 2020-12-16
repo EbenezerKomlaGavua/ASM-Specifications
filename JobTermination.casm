@@ -21,7 +21,7 @@ enum Task ={Starting, Aborted, Terminate}
 function jobOutCome: JobOutcome -> BOOLEAN
 function Event: task-> BOOLEAN
 
-include "./JobInitRequiredFunctions.casm"
+include "./JobInitReqFunMod.casm"
 use Time
 
 init InitRule
@@ -43,7 +43,7 @@ rule InitRule =
 
 	  par
   		Monitor_Resources
-	  		Shutdown_When_Resources_Runout
+	  		Low_Resources
 	  	   terminate(self) := true
 		 
 	endpar         
@@ -53,7 +53,7 @@ rule InitRule =
 // a rule to monitor the availability of adequate resources to ensure that job termination occurs normally.
    rule Monitor_Resources =
       par
-    if Job_Init_Resource_list_if = true and jobRequest(job(JOB), aresources) = true and jobRequest(job(JOB), aresources) = true then{
+    if Job_Init_Resource_list_if = true and jobRequest(job(JOB), aresources) = true  then{
                                      systemstate(JobState, ProcessState, JobTime) := active
                                                      }
                                            print "Job processing is taking place"  
@@ -69,7 +69,7 @@ rule InitRule =
                              endpar
 // A rule when models job termination due to total depletion of resources
                                    
-rule Shutdown_When_Resources_Runout =
+rule Low_Resources =
    par
     if ( Generated_Jobs and Engaged_Processes) = false and   jobRequest(job(JOB), aresources) = true  then {
                                     JobState := done
