@@ -20,16 +20,16 @@ IEEE Sixth International Conference on Cloud Computing, IEEE, 2013, pp. 810815.
 use Standard
 use Modularity
 use Time
-include "./JobInitRequiredFunctions.casm"
+include "./JobInitReqFunMod.casm"
 
 
 enum RtScaling = {ACTIVE_l, IDLE_l}
-enum Pre_scaling = {TRUE_l, FALSE_}
+enum PreScaling = {TRUE_l, FALSE_}
 
 
 function rtScaling: RtScaling -> BOOLEAN
-function pre_scaling: Pre_scaling -> BOOLEAN
-derived CLOUD = Agents  
+function pre_scaling: PreScaling -> BOOLEAN
+derived CLOUDs = Agents  
 
 init InitRule
 	//----Initial rule ---
@@ -57,7 +57,7 @@ rule MainProgram =
       if not terminate(self) then
 
 	  par
-	     LoadPJ_Initialisation
+	     LoadPJInit
 		  terminate(self) := true
 		
 	endpar         
@@ -65,11 +65,11 @@ rule MainProgram =
      program(self) :=undef	
      
     
-     rule LoadPJ_Initialisation =
+     rule LoadPJInit =
                         par
                         
     //The workload Prediction must be executed for the job processing to be initialized.
-                         workloadprediction:= true  // change it in the original document
+                         workloadpred:= true 
       // Requested Services and Existing services are supplied together with Job Initializing Resource List
            while Supplied_Services and ServiceRequest(service, aresources) = true do
                         systemstate(JobState, ProcessState, JobTime) := active
@@ -79,9 +79,9 @@ rule MainProgram =
                              
                              print "workload prediction has been made"
    // The utilisation level of VMs currently running in the cloud is monitored
-                             vmult(VmUlt) := VmUTmin
+                             vmult(VMUlt) := VMUtmin
    // The number of service requests to ensure that the require threshold is supplied
-                            number_of_service_requests_t := NumMin		
+                            NumofSerReqt := NumMin		
                    print "Number of service requests is sufficient"	
     // The number of VMs currently running in the cloud at the Tth interval is monitored
                              vmpool_t	:= Qminn
@@ -89,7 +89,7 @@ rule MainProgram =
    //and the number of service requests are adequest; real-time scaling commences at the Tth interval
      						rtScaling_i:= active          
   // pre-scaling is also commenced at the (t+1)th interval 						
-                             pre_scaling_(_t_+_1_):= active
+                             preScaling_(_t_+_1_):= active
   // Active system state due to commenced job processing
                systemstate(JobState, ProcessState, JobTime) := active
                         print "Job initialisation has commenced"
