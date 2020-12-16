@@ -19,7 +19,7 @@ use Time
 //set program for the executing agent
 
 use Modularity
-include "./JobInitRequiredFunctions.casm"
+include "./JobInitReqFunMod.casm"
 
 
 
