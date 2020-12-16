@@ -17,7 +17,7 @@ Vms too will not be mapped. Average vms will be generated at this point.
 use Standard
 use Modularity
 
-include "./JobInitRequiredFunctions.casm"
+include "./JobInitReqFunMod.casm"
 use Time
 
 
