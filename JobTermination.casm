@@ -52,29 +52,33 @@ rule InitRule =
      
 // a rule to monitor the availability of adequate resources to ensure that job termination occurs normally.
    rule Monitor_Resources =
-      par
-    if Job_Init_Resource_list_if = true and jobRequest(job(JOB), aresources) = true  then{
-                                     systemstate(JobState, ProcessState, JobTime) := active
-                                                     }
-                                           print "Job processing is taking place"  
-             while JobState = processing and processState = running  do {
-                   systemstate(JobState, ProcessState, JobTime) := active
-                                        }
+   par
+    if Job_Init_Resource_list_if = true and jobRequest(job(JOB), aresources) = true  then
+    {
+            systemstate(JobState, ProcessState, JobTime) := active
+      }
+      print "Job processing is taking place"  
+       while JobState = processing and processState = running  do
+      {
+          systemstate(JobState, ProcessState, JobTime) := active
+       }
                                                  
-            while JobOutcome = Success  and Event(Task) = Terminate do {
-                                         JobState := failed
-                                          processState := stopped
-                                        }
-                                  print "Processing  has terminated"     
-                             endpar
+        while JobOutcome = Success  and Event(Task) = Terminate do
+        {
+           JobState := failed
+            processState := stopped
+        }
+          print "Processing  has terminated"     
+   endpar
 // A rule when models job termination due to total depletion of resources
                                    
 rule Low_Resources =
    par
-    if ( Generated_Jobs and Engaged_Processes) = false and   jobRequest(job(JOB), aresources) = true  then {
-                                    JobState := done
-                                   JobTime := completed 
-                                 Event(Task) := Terminate    
-                                          }
-                              print "job processing completed and terminated"
+    if ( Generated_Jobs and Engaged_Processes) = false and   jobRequest(job(JOB), aresources) = true  then 
+    {
+        JobState := done
+         JobTime := completed 
+          Event(Task) := Terminate    
+     }
+        print "job processing completed and terminated"
       endpar  
