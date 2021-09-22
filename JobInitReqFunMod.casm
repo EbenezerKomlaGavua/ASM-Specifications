@@ -105,11 +105,13 @@ derived Job_Init_ReqFns = (jobRequest(job, aresources) and processrequests(proce
                            print "Vms choosen for processing"
                       
                  
-                 }
+                	 }
          rule InstallJobs  =
                    par
                     
-                    if installed(job(JOB), aresources) = true  then {
+                    if installed(job(JOB), aresources) = true  then
+                 
+					 {
                      JobTime :=started 
                      JobState := submitted
                       }
@@ -120,10 +122,11 @@ derived Job_Init_ReqFns = (jobRequest(job, aresources) and processrequests(proce
  rule Jobhandler =
                   par 
                   
-                  if jobhandler(job(JOB), vm(VM)) = true  then {
+                  if jobhandler(job(JOB), vm(VM)) = true  then
+                   {
                       JobTime :=started 
                       JobState := submitted
-                      }
+                    }
                       print "jobhandler is active"
                       
                   endpar
