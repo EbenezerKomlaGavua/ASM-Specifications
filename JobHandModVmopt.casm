@@ -56,9 +56,10 @@ rule InitRule =
      rule JobHandling_Module_Vmopt =
            seq
               par
-                if  JobQReslist_ip = true  and rvm(RVM) = Qavg then{
+                if  JobQReslist_ip = true  and rvm(RVM) = Qavg then
+                {
                    systemstate( JobState, ProcessState, JobTime) := IDLE 
-                   }
+                }
                     print "System is ready but waiting for queuing to end"             
                 endpar
                  VmRequest()
