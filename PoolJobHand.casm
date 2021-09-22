@@ -29,7 +29,7 @@ rule InitRule =
        local installJobs in seq  
           par
         
-            processState(Agents) := unde
+            processState(Agents) := undef
           jobstate :=started
           installJobs := undef
            terminate(self) := false
@@ -43,7 +43,7 @@ rule InitRule =
 
 	  par
 	  		 InitReqFunctions()
-	  		Pred_JobHand_Mod()
+	  		Multi_JobHand_Mod()
 	  		HandleJob
 	  		VmPoolLevel
 	  		
@@ -63,10 +63,10 @@ rule HandleJob =
                par
                seq
                
-                 while JobHReslist_P = active and VmPool = Qmax do {
+                 while JobHReslist_P = active and VmPool = Qmax do 
+                 {
                systemstate:= busy
-                
-               
+              
                }
                             
                                 endseq
