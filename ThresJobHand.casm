@@ -51,7 +51,7 @@ rule InitRule =
 
 	  par
 	  		 InitReqFunctions()
-	  		Pred_JobHand_Mod()
+	  		Multi_JobHand_Mod()
 	  		HandleJob
 	  		ThresLevel
 	  		
@@ -69,11 +69,10 @@ rule InitRule =
     
      rule HandleJob =
                par
-                while JobHReslist_P = active and tlevel = Tmax do {
+                while JobHReslist_P = active and tlevel = Tmax do 
+                {
                systemstate:= busy
-              
-               
-               }
+                   }
                               
                              
                   print "Joblauncher is to working now"
@@ -83,9 +82,10 @@ rule InitRule =
       par
           if (|CurrentVmThreshold| < |Tavg|) = true then
                  DestroyVm := true
-                if (|CurrentVmThreshold| > |Tavg|) = true then{
+                if (|CurrentVmThreshold| > |Tavg|) = true then
+                {
                     AddVM(vm, job) := true
-                     }
+                 }
                   else          
           if ((|CurrentVmThreshold| < |Tavg|) = true ) and ((currentVmPosition(CurrentVmPosition) = VmL) = true) then
                    VmTime := CurrentTime + 3600
