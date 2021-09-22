@@ -61,9 +61,10 @@ rule InitRule =
      rule Pooling_JobHandling_Module =
            seq
               par
-                if  JobQReslist_ip  = true  and vmpool = Qavg then{
+                if  JobQReslist_ip  = true  and vmpool = Qavg then
+                {
                    systemstate( JobState, ProcessState, JobTime) := idle 
-                   }
+                 }
                     print "System is ready but waiting for queuing to end"             
                 endpar
                 VmRequest()
