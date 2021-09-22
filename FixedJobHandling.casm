@@ -40,8 +40,8 @@ rule InitRule =
 	  par
 	  		Request_Functions()
 	  		Mapping_Functions()
-	  		Reactive_Job_Queuing()
-	  		ReactSelectVms()
+	  		Job_Queuing()
+	  		SimSelectVms()
 	  		HandleJob
 	  	print"-------------------------------"
 	  	 print"Output : Dur. of Simulation"
