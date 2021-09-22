@@ -1,0 +1,47 @@
+CoreModule  MultimodeJobHandMod
+
+//use standard plugins
+use Standard
+
+//set program for the executing agent
+use Modularity
+//Definition of universes
+use Time
+include "./JobHandVmReqMod.casm"
+
+enum Vmpool = {	Qminn, Qmaxx}
+enum VmUt = {T_900s, T_1800s, T_3600s,T_5400s}
+enum DestroyVm = {True, False}
+enum TimeRequest ={True_t, False_t}
+
+// definition of functions to be utilized in creating signatures and rules
+
+function vmpool : Vmpool -> BOOLEAN
+function compatible : job* vm -> NUMBER
+function AddVM :vm * job -> BOOLEAN
+function tlevel : TLevel -> BOOLEAN 
+function belongsto: Belongsto -> BOOLEAN
+
+                
+
+rule Job_Queuing =
+              par
+                if  JobQReslist_ip = true and joblauncher(jobhandler(job, vm), vm) = false  then
+                   systemstate(JobState, ProcessState, JobTime) := idle
+                    print "System is in the Queuing stage"             
+                endpar
+
+
+rule Multi_JobHand_Mod =
+           seq
+              par
+                if  JobQReslist_ip = active   then
+                {
+                   systemstate( JobState, ProcessState, JobTime) := idle 
+                 }
+                    print "System is ready but waiting for queuing to end"             
+                endpar
+                	VmRequest()
+                   endseq
+
+
