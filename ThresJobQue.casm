@@ -64,9 +64,10 @@ rule InitRule =
 
      rule Threshold_Job_Queue =
               par
-                if  JobQReslist_ip = active  and tlevel(TLevel) = Tmin then{
+                if  JobQReslist_ip = active  and tlevel(TLevel) = Tmin then
+                {
                    systemstate := IDLE
-                   }
+                 }
                     print "Threshold_Job_Que is in the Queuing stage"             
                 endpar
                
