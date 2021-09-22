@@ -74,11 +74,13 @@ whilst the processes are also mapped to the aresources.
 
 rule Job_and_Process_Requesting = 
   par
-    if jobRequest(job(JOB), aresources) = true and processRequests(process(PROCESS), aresources) = true and mappedjob(job(JOB), process(PROCESS)) = true  then {
-                JobTime := waiting
-                  } 
+    if jobRequest(job(JOB), aresources) = true and processRequests(process(PROCESS), aresources) = true 
+    											and mappedjob(job(JOB), process(PROCESS)) = true  then
+    				 				{
+                						JobTime := waiting
+                 					 } 
                                         
-         endpar
+       endpar
   
      
 /**
