@@ -5,8 +5,8 @@ use Standard
 
 //set program for the executing agent
 
-include "./PredictJobHandMod.casm"
-include "./ReactJobHandMod.casm"
+include "./MultiJobHandMod.casm"
+include "./SimJobHandMod.casm"
 use Modularity
 use Time
 
@@ -27,16 +27,20 @@ derived Job_Que_MapFunctions = ( mappedjob(job, process) and mappedvm(job, vm) =
 
 rule Mapping_Functions =
                       par
-                     if Job_Que_MapFunctions = true then {
+                     if Job_Que_MapFunctions = true then 
+                 
+				 {
                      JobTime := stopped
                      JobState := waiting
-                     }
+                  }
                           print "jobs mapping paused"
                    endpar
 
        rule Request_Functions =
                     par
-                     if Job_Que_ReqFunctions = true then {
+                     if Job_Que_ReqFunctions = true then
+                   
+					{
                       processState:=ready_mode
                      }
                print "jobs requests paused"
