@@ -51,7 +51,7 @@ rule InitRule =
 
 	  par
 	  		 InitReqFunctions()
-	  		Pred_JobHand_Mod()
+	  		Multi_JobHand_Mod()
 	  		HandleJob
 	  		UtilLevel
 	  		
