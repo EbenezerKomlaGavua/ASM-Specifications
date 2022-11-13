@@ -13,7 +13,7 @@ enum Vmpool = {	Qminn, Qmaxx}
 enum VmUt = {T_900s, T_1800s, T_3600s,T_5400s}
 enum DestroyVm = {True, False}
 enum TimeRequest ={True_t, False_t}
-
+//enum VMCount = {NumMin, NumAvg,NumMax}
 // definition of functions to be utilized in creating signatures and rules
 
 function vmpool : Vmpool -> BOOLEAN
@@ -25,10 +25,12 @@ function belongsto: Belongsto -> BOOLEAN
                 
 
 rule Job_Queuing =
-              par
-                if  JobQReslist_ip = true and joblauncher(jobhandler(job, vm), vm) = false  then
-                   systemstate(JobState, ProcessState, JobTime) := idle
-                    print "System is in the Queuing stage"             
+              local QueReslist in par
+                if  QueReslist = true and Multimode_universes = false  then
+                 		 if VMCount <= NumMinn then
+                   joblauncher(jobhandler(job, vm), vm) := false
+                   systemstate(JobState, ProcessState, JobTime) := WAITING
+                    print "System state is in the Queuing stage"             
                 endpar
 
 
@@ -37,9 +39,9 @@ rule Multi_JobHand_Mod =
               par
                 if  JobQReslist_ip = active   then
                 {
-                   systemstate( JobState, ProcessState, JobTime) := idle 
+                   systemstate( JobState, ProcessState, JobTime) := WAITING 
                  }
-                    print "System is ready but waiting for queuing to end"             
+                    print "System is waiting "             
                 endpar
                 	VmRequest()
                    endseq

@@ -1,0 +1,114 @@
+CoreASM MultimodeJobInitialPhase
+
+/**
+ASSUMPTIONS:
+This is algorithm models the Simple Job Initializing algorithm of the ASM model.
+The algorithm utilizes universes,Agents,signatures,functions
+and derived funtions in the modeling process.
+The algorithm is expected to utilize generated jobs, existing vms,engaged processes 
+and supplied resources for the modeling .
+The algorithm must check for essential modelling requirements such as process requests, job requests  and
+map jobs to processes. The jobs must be installed as tasks.
+ The Jobhandler is expected to be mapped to ensure that job processing can be achieved.
+When all the above is in place; JobState is mapped to submitted, 
+the Jobtime is mapped to started and the ProcessState is mapped to ready. 
+ When all this is in place, the job initializing stage of the model is achieved.
+*/
+use Standard
+use Time
+//set program for the executing agent
+
+use Modularity
+include "./JobInitReqFunMod.casm"
+
+
+
+init InitRule
+	//----Initial rule ---
+rule InitRule =
+       local installJobs in seq  
+          par
+          print " Required cores are not supplied "
+          print "Required nodes are not supplied"
+          print "Execution Trace is not supplied"
+          print "Scaling algorithm is not present"
+          print"-----------------------------"
+          processState(Agents) := undef// new_mode
+          jobstate :=started
+          installJobs := undef
+           terminate(self) := false
+            program(self) := @MainProgram   
+            endpar 
+            
+        endseq
+  
+ /** 
+  main program for calling the various rules to ensure that the functions
+   and derived rules  generate the expected results   
+  */      
+ rule MainProgram =
+      if not terminate(self) then
+
+	  par
+		 checkresources
+		 JobRequest
+		//Map_Jobs
+		 Map_Vms_and_Jobs
+		InstallJobs_initPhase
+		terminate(self) := true
+		
+	endpar         
+    else
+     program(self) :=undef	 
+       
+       
+       
+// rules for checking the availability resources before commencing the refinement process             
+      rule checkresources =
+      par
+         if (Supplied_Resources and Generated_Jobs and Running_Time and Engaged_Processes and Existing_Vms and Multimode_universes) then 
+         ProcessState(self) := ready_mode
+            print "Required Resources are unavailable"
+         
+         endpar 
+/**
+ rule for requesting jobs and processes. The jobs are mapped unto the aresources, 
+whilst the processes are also mapped to the aresources. 
+*/        
+  rule JobRequest = 
+       par
+           if jobRequest(job(JOB), aresources) = true and processrequests(process(PROCESS), aresources) = true   then {
+               JobState := submitted
+                }
+              print " Jobs and Process Requests incompleted"
+           endpar         
+                  
+  rule Map_Vms_and_Jobs =
+             par 
+                if  mapppedvm(job(JOB), vm(VM))  = true and mappedjob(job(JOB), process(PROCESS)) = true  then {
+                     JobTime :=started
+                      }
+                      print "Vms  and jobs mapping incompleted"
+             endpar        
+                  
+  /**                                 
+ Jobhandling begins when there a vms for the generated jobs. Jobs are installed as tasks.
+ The mapped vms and jobs are processed through the activities of the jobhandler. 
+ */         
+       rule InstallJobs_and_Map_Jobhandler  =
+                  par 
+                  
+                  if   installed(job(JOB), vm(VM)) = true and jobhandler(job(JOB), vm(VM)) = true  then {
+                      JobTime :=started 
+                      JobState := submitted
+                      }
+                      print "jobs not installed as tasks and jobhandler is active"
+                       print "systemstate is idle"
+                      
+                  endpar
+                       
+                  
+           
+           
+                  
+    
