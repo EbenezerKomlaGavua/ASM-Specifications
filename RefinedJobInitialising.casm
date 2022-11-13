@@ -1,0 +1,70 @@
+CoreASM VmoptJobInit
+
+/**
+*ASSUMPTIONS:
+*This is algorithm models the Refined Job Initializing algorithm of the ASM model.
+*The algorithm utilizes universes,Agents,signatures,functions
+* and derived funtions in the modeling process.
+*The algorithm is expected to have generated jobs, existing vms,engaged processes 
+*and supplied resources  available before the modelling commences.
+* The job required initialization functions must be active. 
+* A joblauncher function created with which maps the jobhandler to a vms Jobhandler is 
+*expected to be mapped to ensure that job processing can be achieved.
+*When all the above holds; The systemstate function (which includes the JobState,
+*Jobtime and the ProcessState) must be mapped to active.
+*/
+use Modularity
+include "./JobInitReqFunMod.casm"
+
+use Standard
+use Time
+//set program for the executing agent
+
+
+init InitRule
+	//----Initial rule ---
+rule InitRule =
+       local installJobs in seq  
+          par
+         
+         print " Required cores are supplied "
+          print "Required nodes are supplied"
+          print "Execution Trace is supplied"
+          print "Scaling algorithm is present"
+          print"-------------------------------"
+ 
+           processState := undef
+          jobstate :=started
+          installJobs := undef
+           terminate(self) := false
+            program(self) := @MainProgram   
+            endpar 
+            
+        endseq
+
+ rule MainProgram =
+      if not terminate(self) then
+
+	  par
+	  
+	    InitReqFunctions () //All this point jobRequests,processRequests,mappedVM,mappedJobs and installJobs are mapped to "true"
+		Simple_Job_Init()       
+  		 terminate(self) := true
+		
+	endpar         
+    else
+     program(self) :=undef	
+  
+     rule Simple_Job_Init =
+   
+              par
+                if  Job_Init_Resource_list_if = active and joblauncher(jobhandler(job, vm), vm) = true then
+                  if installed(job(JOB), vm) = true  then
+                   systemstate(JobState, ProcessState, JobTime) := active
+                    print "Jobs submitted"
+                    print "Job Initializing"             
+            
+              endpar
+              
+                 
+          
