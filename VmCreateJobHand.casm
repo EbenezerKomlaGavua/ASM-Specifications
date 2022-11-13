@@ -69,8 +69,8 @@ rule InitRule =
 
 rule HandleJob =
                par
-               while JobHReslist_P = active and tlevel = Tmax do {
-               systemstate:= busy
+               while JobHandReslist = active and tlevel = Tmax do {
+               systemstate(JobState, ProcessState, JobTime):= BUSY
                 
                
                }
@@ -79,15 +79,19 @@ rule HandleJob =
 
  rule UtilLevel =
                 par 
-                     if (|UtVMmax| > |UtVMmin|) = true then {
+                     if (|UtVMmax| > |UtVMmin|) = true then
+                      {
                         AddVM := true 
-                        mappedvm(job, vm):= true
+                        ReqResources:= true
                         }
                    else     
                      if (|UtVMavg| > |UtVMmin|)= true then {
 						AddVM := true
-						mappedvm(job, vm):= true 
+						ReqResources:= true
+						SimmulationDuration := SDmax
+					    AverageUtilPM :=AQTmax
+ 					    AverageQueTime :=AUPMmax 
 						}
-						 systemstate:= active
+						 systemstate:= BUSY
 			    print "Current Utilisation level is sufficient for processing to continue"
                      endpar

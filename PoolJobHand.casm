@@ -60,26 +60,36 @@ rule InitRule =
 
 
 rule HandleJob =
-               par
+           par
                seq
                
-                 while JobHReslist_P = active and VmPool = Qmax do 
+                 while JobHandReslist = active and VmPool = Qmax do 
                  {
-               systemstate:= busy
-              
-               }
+               		systemstate:= busy
+                  }
                             
-                                endseq
+              endseq
                   print "Joblauncher is to working now"
-               endpar
+        endpar
                
     rule VmPoolLevel =
                  par
                     seq
-                     while vmpool >= MinQ do
+                     while (vmpool >= MinQ) = true do
+                     {
 					 AddVM := true 
-                     mappedvm(job, vm):= true
+                     ReqResources:= true
+                      SimmulationDuration := SDmax
+					  AverageUtilPM :=AQTmax
+ 					 AverageQueTime :=AUPMmax
+ 					  systemstate:= BUSY
+                     }
                      endseq
-                      systemstate:= active
+                     
+                     
                      print "Vm Pool level is sufficient for processing to continue"
+                     
                    endpar
+
+
+

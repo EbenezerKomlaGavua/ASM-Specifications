@@ -1,0 +1,111 @@
+CoreASM PoolJobtermination
+
+/**
+ASSUMPTIONS:
+The algorithm demonstrates job termination of the Pooling Vm   auto-scaling mechanism.
+ This algorithm calls the JobInitRequiredFunctions module which in turns calls
+  the JobQueReqFunctions and the PredictiveJobHandling  and the JobHandlingVmRequest  modules. 
+The algorithm is expected to monitor the presences of the 
+Job Handling Resource (Reslist) for Predictive auto-scalers.
+This algorithm ensures that the quantity of vms generated are more or equal to what is expected(i.e. a vm pool is
+created and maintained) for job processing.
+
+
+
+*/
+
+use Standard
+use Modularity
+use Number
+
+include "./JobInitReqFunMod.casm"
+use Time
+
+
+//set program for the executing agent
+init InitRule
+	//----Initial rule ---
+rule InitRule =
+       local installJobs in seq  
+          par
+        
+            processState(Agents) := undef
+          jobstate :=started
+          installJobs := undef
+           terminate(self) := false
+            program(self) := @MainProgram   
+            endpar 
+            
+        endseq
+
+ rule MainProgram =
+      if not terminate(self) then
+
+	  par
+	  		 InitReqFunctions()
+	  		Multi_JobHand_Mod()
+	  		HandleJob
+	  		VmPoolLevel
+	  		TerminateJobs
+	  		CheckJobs
+	  		
+	  	print"-------------------------------"
+	  	 print"Output : Dur. of Simulation"
+	  	 print"Output : Average Queuing Time"
+	  	 print"Output : Avg. Utilization of PMs"
+	  		
+	  		terminate(self) := true
+		 
+	endpar         
+    else
+     program(self) :=undef
+
+
+rule HandleJob =
+           par
+               seq
+               
+                 while JobHandReslist = active and VmPool = Qmax do 
+                 {
+               		systemstate:= busy
+                  }
+                            
+              endseq
+                  print "Joblauncher is to working now"
+        endpar
+               
+    rule VmPoolLevel =
+                 par
+                    seq
+                     while (vmpool >= MinQ) = true do
+                     {
+					 AddVM := true 
+                     ReqResources:= true
+                      SimmulationDuration := SDmax
+					  AverageUtilPM :=AQTmax
+ 					 AverageQueTime :=AUPMmax
+ 					  systemstate:= BUSY
+                     }
+                     endseq
+                      print "Vm Pool level is sufficient for processing to continue"
+                     
+                   endpar
+rule TerminateJobs =
+				   par
+				   while systemState = BUSY  and Event(Task) = Terminate do
+        			{
+         			 systemState := stopped
+       				 }
+        		  print "Processing  has terminated"   
+				 endpar 
+rule CheckJobs= 
+				par
+				if ( Generated_Jobs and Engaged_Processes) = false and   SystemRequests = true  then 
+    				{
+       			 systemState := done
+      			 Event(Task) := Terminate    
+    				 }
+       			 print "job processing is done"
+				endpar
+
+
