@@ -42,3 +42,4 @@ After the design of the ASM model; the model was applied on an auto-scaler desig
  |17  |Virt. Res. Scal. down  |LoadVirtResScalDown.casm  |
  |18  |Pre-scaling Int.       |LoadPreScalInterval.casm  |
  |19  |Cost-Aware Pre-scal.   |LoadCostAwarePSU.casm     | 
+ |20  |Simple Initial Phase   |SimpleInitialPhase.casm   |
