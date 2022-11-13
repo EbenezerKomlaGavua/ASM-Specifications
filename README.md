@@ -23,8 +23,8 @@ After the design of the ASM model; the model was applied on an auto-scaler desig
  ###### The ASM Specification files created for this research and the algorithms discussed in the paper are tabulated below
  |AN  |Algorithms             | File Names               |
  |----|-----------------------|--------------------------|
- |1   |Initial Phase          |JobInitReqFunMod.casm     |
- |2   |Fixed Job Initial      |FixedJobInitializing.casm |
+ |1   |Job Handling           |JobInitReqFunMod.casm     |
+ |2   |Refined Job Handling   |RefinedJobHandling.casm   |
  |3   |Vmopt Job Initial      |VmoptJobInit.casm         |
  |4   |Threshold job Init.    |ThresholdJobInit.casm     |
  |5   |Fixed Jobs Que.        |FixedJobQue.casm          |
@@ -43,3 +43,10 @@ After the design of the ASM model; the model was applied on an auto-scaler desig
  |18  |Pre-scaling Int.       |LoadPreScalInterval.casm  |
  |19  |Cost-Aware Pre-scal.   |LoadCostAwarePSU.casm     | 
  |20  |Simple Initial Phase   |SimpleInitialPhase.casm   |
+ |21  |Simple Job Queuing     |SimpleJobQue.casm         |
+ |22  |Simple Job Initialising|SimpleJobInitialising.casm|
+ |23  |Simple JobHandlingMod. |SimpleJobHandMod.casm     |
+ |24  |Refined Job Termination|RefineJobTermination.casm |
+ |25  |Refined Initial Phase  |RefinedInitialPhase.casm  |
+ |26  |Refined Job Queuing    |RefinedJobQue.casm        |
+ 
