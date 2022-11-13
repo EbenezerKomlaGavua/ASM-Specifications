@@ -1,0 +1,66 @@
+CoreASM RefinedJobHanding
+
+/**
+ASSUMPTIONS:
+This specification models the refined jobhandling algorithm. 
+This algorithm calls the JobInitRequiredFunctions module which in turns calls
+SimpleJobHandMod and Multi_JobHand_Mod  modules.
+The algorithm is expected to call the JobInitRequiredFunctions module which contains all the important universes, 
+functions and derived functions to run this algorithm.
+ The algorithm is expected to check for running time, placed timerequests and mapped vms.
+This algorithm expects that reusable Vms always above the average quantity.
+*/
+
+use Standard
+use Modularity
+
+include "./JobInitReqFunMod.casm"
+use Time
+
+
+
+//set program for the executing agent
+init InitRule
+	//----Initial rule ---
+rule InitRule =
+       local installJobs in seq  
+          par
+        
+          processState(Agents) := undef// new_mode
+          jobstate :=started
+          installJobs := undef
+           terminate(self) := false
+            program(self) := @MainProgram   
+            endpar 
+            
+        endseq
+
+ rule MainProgram =
+      if not terminate(self) then
+
+	  par
+	  	 InitReqFunctions()
+	  	 Multi_JobHand_Mod()
+	  		HandleJob
+	  	print"-------------------------------"
+	  	 print"Output : Dur. of Simulation"
+	  	 print"Output : Average Queuing Time"
+	  	 print"Output : Avg. Utilization of PMs"
+	  		
+	  		terminate(self) := true
+		
+	endpar         
+    else
+     program(self) :=undef
+      rule HandleJob =
+               par
+               while JobHandReslist do 
+               {
+                 systemState := BUSY
+               }
+               
+              print "System is busy"
+                 endpar   
+             
+   
+     
