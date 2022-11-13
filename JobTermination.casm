@@ -42,6 +42,7 @@ rule InitRule =
       if not terminate(self) then
 
 	  par
+  		InitReqFunctions ()
   		Monitor_Resources
 	  		Low_Resources
 	  	   terminate(self) := true
@@ -55,18 +56,18 @@ rule InitRule =
    par
     if Job_Init_Resource_list_if = true and jobRequest(job(JOB), aresources) = true  then
     {
-            systemstate(JobState, ProcessState, JobTime) := active
+            systemstate(JobState, ProcessState, JobTime) := ACTIVE
       }
       print "Job processing is taking place"  
-       while JobState = processing and processState = running  do
+       while JobState = processing and processState(Agents) = running  do
       {
-          systemstate(JobState, ProcessState, JobTime) := active
+          systemstate(JobState, ProcessState, JobTime) := ACTIVE
        }
-                                                 
+                                            
         while JobOutcome = Success  and Event(Task) = Terminate do
         {
            JobState := failed
-            processState := stopped
+            processState(Agents) := stopped
         }
           print "Processing  has terminated"     
    endpar
@@ -80,5 +81,5 @@ rule Low_Resources =
          JobTime := completed 
           Event(Task) := Terminate    
      }
-        print "job processing completed and terminated"
+        print "job processing is done"
       endpar  
