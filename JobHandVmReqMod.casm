@@ -10,15 +10,14 @@ include "./LoadPredJobHandMod.casm"
 
 //A derived function merging all the necessary condition required for Job Handling
 derived JobHandlingReq = (( Existing_Vms and Running_Time = true) and  (installed(job, vm) = false ) and (mappedvm(job, vm)= false) = active) 
-
+derived JobProcessing = JobHandlingReq
  rule VmRequest = {
               										  
-                       if JobHandlingReq = true  then
+                      while JobProcessing = true  do
  // Select  vms from a queue of existing virtual machines, and upload it for processing to continue
-                          choose vm in Agents do
-                          compatible(job, vm) := true
+                          AddVM := true
+                           compatible(job, vm) := true
                            belongsto(Belongsto):= true
-                           AddVM := true
                            mapppedvm(job(JOB), vm(VM))  := true
                            print "Vms choosen for processing"
                        

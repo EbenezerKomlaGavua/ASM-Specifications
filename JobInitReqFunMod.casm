@@ -18,7 +18,7 @@ include "./JobQueReqFunMod.casm"
 
 
 //Definition of universes
-universe Agents = {VM,PROCESS,ARESOURCES,JOB,TIME,SERVICE}
+universe Agents = {VM,PROCESS,ARESOURCES,JOB,TIME,SERVICE,SIMPLE,MULTIMODE}
 enum cores ={core1, core2, core3, core4}
 enum nodes = {node1, node2, node3, node4}
 enum Trace ={execution_trace}
@@ -29,12 +29,14 @@ enum JobTime = {started,processing,stopped,completed}
 enum ProcessState ={new_mode, ready_mode, waiting_mode, running_mode, stopped_mode}
 enum Res_listStates = {ACTIVE, IDLE}
 enum RVM = {Qmin, Qavg, Qmax}
-enum systemState ={busy,idle}
+enum systemState ={IDLEE,WAITING,BUSY,FAILED,STOPPED,COMPLETED}
 enum VmUlt = {VmUTmin, VmUTavg, VmUTmax}
 enum Number_Of_Service_Requests ={NumMin, NumAvg, NumMax}
+enum VMCount = {NumMinn, NumAvgg,NumMaxx}
+enum VMCountt = {NumMi, NumA,NumMa}
 enum JobIReslist= {Active_if, Idle_if}
-enum TLevel ={Tmin, Tavg, Tmax}
-enum WorkLoadPrediction = {TRUE, FALSE}
+//enum TLevel ={Tmin, Tavg, Tmax}
+enum WorkLoadPrediction = {PWL_active, PWL_inactive}
 enum VMpool = {	QMinn, QMaxx}
 enum selfhealing_su = {ACTIVE_sl, IDLE_sl}
 enum  WorkLoad_Prediction  = {TRUE_wp, FALSE_wp}
@@ -46,7 +48,11 @@ function job:JOB -> NUMBER
 function time: TIME -> NUMBER
 function  process: PROCESSES -> NUMBER
 function vm : VM -> NUMBER
+function vi : VI -> BOOLEAN
+function simscaler : SIMSCALER -> BOOLEAN
+function basicjobscheduler : BASICJOBSCHEDULER -> BOOLEAN
 function aresource:ARESOURCE -> BOOLEAN
+function generictraceproducer:GENERICTRACEPRODUCER -> BOOLEAN
 function controlled jobstate : -> JobState 
 function controlled jobtime :-> JobTime
 function controlled vmult :VmUlt -> NUMBER
@@ -66,7 +72,7 @@ function joblauncher: jobhandler * vm -> NUMBER
 function systemstate :JobState* ProcessState *JobTime -> BOOLEAN // This is utilized when all the three state functions must be assigned to true
 function CurrentVmThreshold :-> NUMBER
 function vmPool: VMpool -> NUMBER
-function ServiceRequest : service * aresources -> NUMBER
+function ServiceRequest : service * aresources -> BOOLEAN
 
 //definition of the derived functions made up of logic function and boolean expressions to enable effective comparisions
 derived Existing_Vms = (exists vm in Agents with VM = true)
@@ -74,23 +80,47 @@ derived Engaged_Processes = (exists process in Agents with PROCESS = true)
 derived Running_Time =(exists time in Agents with TIME = true)
 derived Generated_Jobs = (exists job in Agents with JOB = true)
 derived Supplied_Resources = (exists aresource in Agents with ARESOURCE = true) 
-derived Supplied_Services = (exists service in Agents with SERVICE = true) 
+derived Supplied_Services = (exists service in Agents with ARESOURCE = true) 
+//derived Service_Requests = (exists services in Agents with SERVICE = true) 
+derived Multimode_universes = (exists mulitimode in Agents with MULTIMODE = true) 
+derived Simple_universes = (exists simple in Agents with SIMPLE = true) 
+
 // The above derived functions are combined into a single derived function with the aid of operators to simply
 // modelling process
-derived Job_Init_Resource_list_if =(Existing_Vms and Engaged_Processes and Running_Time  and Generated_Jobs and Supplied_Resources = true)
-//A derived function for the predictive autoscalars made up of the Job_Init_Resource_list_if and the joblauncher
+derived Job_Init_Resource_list_if =(Existing_Vms and Engaged_Processes and Running_Time  and Generated_Jobs and Supplied_Resources and Multimode_universes and Simple_universes = true)
+
+//A derived function for the simple autoscalars made up of the Job_Init_Resource_list_if and the joblauncher for the initial phase
+derived Job_Init_Reslist_siminitph =(Existing_Vms and Engaged_Processes and Running_Time  and Generated_Jobs and Supplied_Resources and Simple_universes = false)
+
+//A derived function for the multimode autoscalars made up of the Job_Init_Resource_list_if and the joblauncher for the initial phase
+derived Job_Init_Reslist_multinitph =(Existing_Vms and Engaged_Processes and Running_Time  and Generated_Jobs and Supplied_Resources and Multimode_universes = false)
+
+//A derived function for the multimode autoscalars made up of the Job_Init_Resource_list_if and the joblauncher
 derived JobIReslist_ip =(Job_Init_Resource_list_if and joblauncher(jobhandler(job, vm), vm) and installed(job(JOB), vm) = true)
 //This will reduce the repetition of the above mentioned functions.
 derived Job_Init_ReqFns = (jobRequest(job, aresources) and processrequests(process, aresources) and mappedjob(job, process) and mappedvm and installed(job, aresources) = true)
 // derived systemstate = (jobtime and jobstate and processState)
- derived JobHReslist_P =   ((time = Running_Time) and (timeRequest(process, job) = true) and  joblauncher(jobhandler(job, vm), vm) = true)
- rule  InitReqFunctions =
+derived JobHandReslist =   ((time = Running_Time) and (timeRequest(process, job) = true) and  joblauncher(jobhandler(job, vm), vm) = true)
+derived ReqResources = (mappedvm(job, vm) and job(JOB, vm) = true)
+derived SystemRequests= (jobRequest(job(JOB), aresources) and processrequests(process(PROCESS), aresources) = true)
+
+
+rule  InitReqFunctions =
                  par
-                    if Job_Init_ReqFns = true then
+                  while (Job_Init_ReqFns and JobHReslist_P  = true) do
+                    //{
                     systemstate(JobState, ProcessState, JobTime) := active
+                   // }
                     print "Required functions are active"
+                     print "System State is active"
                    endpar
 
+rule  InitiReslist =
+                 par
+                    if Job_Init_Reslist_siminitph  = true then
+                   systemstate(JobState, ProcessState, JobTime) := IDLEE
+                   print "Required universes and functions are inactive"
+                 endpar
 
 // defining the rule used for selecting vms when the modelling enters the queuing stage
  rule Select_Vms = {
@@ -106,7 +136,7 @@ derived Job_Init_ReqFns = (jobRequest(job, aresources) and processrequests(proce
                       
                  
                 	 }
-         rule InstallJobs  =
+rule InstallJobs  =
                    par
                     
                     if installed(job(JOB), aresources) = true  then
@@ -118,6 +148,20 @@ derived Job_Init_ReqFns = (jobRequest(job, aresources) and processrequests(proce
                       print "jobs installed as tasks and jobhandler is active"
                       
                   endpar
+                  
+   rule InstallJobs_initPhase  =
+                   par
+                    
+                    if installed(job(JOB), aresources) = false  then
+                 
+					 {
+                     JobTime :=idle 
+                     JobState := idle
+                      }
+                      print "jobs installed as tasks and jobhandler is inactive"
+                      
+                  endpar               
+                  
 
  rule Jobhandler =
                   par 
