@@ -24,29 +24,32 @@ use Time
 use Modularity
 
 
+include "./JobInitReqFunMod.casm"
 
 
-
+         rule SimJobQue =
+              par
+                		if   QueReslist and Simple_universes  = ACTIVE  then
+               				if VMCount <= NumMinn then
+                ReqResources := false and jobhandler(job(JOB), vm(VM)) = false
+                   systemstate(JobState, ProcessState, JobTime) := IDLEE
+                    print "SYSTEM STATE is WAITING"             
+                endpar
+        
         
                 
       rule SimSelectVms = {
                 
                    if (Existing_Vms and Running_Time ) = true   then   
                      if  installed(job, aresources) = false then 
-                     if mappedvm(job, vm)(job(JOB), vm(VM) = false)  then 
-                          choose vm in Agents do
-                          compatible(job, vm) := true
+                     if (ReqResources = false)  then 
+                           compatible(job, vm) := true
                            belongsto(Belongsto):= true
                            AddVM(vm, job) := true
-                           mapppedvm(job(JOB), vm(VM))  := true
-                           print "Vms choosen for processing"
+                           ReqResources := true
+                          print "Vms choosen for processing"
                       
                    
                  }
                
-           rule SimJobQue =
-              par
-                if   JobQReslist_if  = active and jobhandler(job(JOB), vm(VM)) = false then
-                   systemstate(JobState, ProcessState, JobTime) := idle
-                    print "Auto-scaler is in the Queuing stage"             
-                endpar
+          
