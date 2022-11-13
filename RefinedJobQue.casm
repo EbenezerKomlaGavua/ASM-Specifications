@@ -1,0 +1,74 @@
+CoreASM RefinedJobQue
+
+/**
+ASSUMPTIONS:
+This is algorithm models the  Multimode Job Initializing algorithm of the ASM model.
+The algorithm utilizes universes,Agents,signatures,functions
+ and derived funtions in the modeling process.
+The algorithm is expected to utilize generated jobs, existing vms,engaged processes 
+and supplied resources for the modeling .
+The algorithm must check for essential modelling requirements such as process requests, job requests  and
+map jobs to processes.
+ The Joblauncher is expected to be mapped to ensure that job processing can be achieved 
+but this is expected to fail  and reminds idle. Since jobs could not be mapped.
+Vms too will not be mapped. Average vms will be generated at this point.
+This will cause the modelling to enter into the queuing stage.
+*/
+
+use Standard
+use Time
+use Modularity
+
+//enum VMCount = {NumMin, NumAvg,NumMax}
+
+
+include "./JobInitReqFunMod.casm"
+init InitRule
+	//----Initial rule ---
+rule InitRule =
+       local installJobs in seq  
+          par
+        
+         print " Required cores are supplied "
+          print "Required nodes are supplied"
+          print "Execution Trace is supplied"
+          print "Scaling algorithm is present"
+          print"-----------------------------"
+          
+           processState := undef// new_mode
+          jobstate :=started
+          installJobs := undef
+           terminate(self) := false
+            program(self) := @MainProgram   
+            endpar 
+            
+        endseq
+
+ rule MainProgram =
+      if not terminate(self) then
+
+	  par
+	    InitReqFunctions ()
+	    Mapping_Functions()
+	    Request_Functions()
+        RefinJobQueue
+		terminate(self) := true
+		
+	endpar         
+    else
+     program(self) :=undef	
+
+/**     
+* The JobQRelist_ip is compared to "active" because it has already been compared to "true" 
+*in the JobQueReqFunctions.casm module. Once JobQRelist_ip is active, it means the resources are available     
+*/ 
+
+
+        
+     rule RefinJobQueue =
+              par
+                if  QueReslist = active then
+                if VMCount <= NumMinn then
+                   systemstate(JobState, ProcessState, JobTime) := waiting
+                    print "System State is Waiting"             
+              endpar
