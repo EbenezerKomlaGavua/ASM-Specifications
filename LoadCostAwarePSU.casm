@@ -65,8 +65,8 @@ rule InitRule =
                    seq
    //The Job handling module is called to supplied all the requisite resources and services for running this algorithm.
                             MonitorSerReq()
-                      while (JobHReslist_P) do
-                  systemstate(JobState, ProcessState, JobTime):= active
+                      while (JobHandReslist) do
+                  systemstate(JobState, ProcessState, JobTime):= ACTIVE
                   print "job resource is checked"
    // Once the requisite resources are checked, VMlevel scaling up is executed to ensure that service requests can be met.
                       vmlevel_su(VMlevel_SU) := ENGAGED
@@ -76,15 +76,15 @@ rule InitRule =
  //Compare the quantity of Requests made by users of the services
  		        if   (|NumOfRequests| > 0) = true then 
 //Compare the quantity of requests made to the quantity of resources provided for the cloud services
- 		           if (|SuppResources| < |NumOfRequests|) = true  then 
+ 		           if (|ARESOURCES| < |NumOfRequests|) = true  then 
  		            {
 //Once the services and the number of requests have been compared, the smallest VMs are scaled up
-							SmallestVm_SU := active
+							SmallestVm_SU := ACTIVE
 					 }
 				else {
 					         Agents_Scaling_up := true
                        }
  		           endif
-			          print "Cost_aware Pre-scaling at specific intervals is  achieved"
+			          print "System State is busy"
        endpar                    
 

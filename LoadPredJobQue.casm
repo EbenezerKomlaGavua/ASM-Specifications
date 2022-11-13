@@ -46,7 +46,7 @@ rule InitRule =
       if not terminate(self) then
 
 	  par
-	     
+	     InitReqFunctions () 
         LoadPJobQueue
 		  terminate(self) := true
 		
@@ -56,22 +56,23 @@ rule InitRule =
   
      rule LoadPJobQueue =
               par
-                      workloadpred:= true
-                 print "workload prediction executed"
+               while Supplied_Services and ServiceRequest(SERVICE, aresources)   = true do
+           			         workloadpred(WorkLoad_Prediction):= PWL_active
   // Requested Services and Existing services are supplied together with Job Queuing Resource List
-          while Supplied_Services and ServiceRequest(service, aresources) = true and JobQReslist_ip = active do
-                            systemstate(JobState, ProcessState, JobTime) := active
-                            while JobQReslist_ip = active do
+         // while Supplied_Services and ServiceRequest(service, aresources) = true and JobQReslist_ip = active do
+                        //    systemstate(JobState, ProcessState, JobTime) := active
+                           while QueReslist = active do
                        forall s in [CLOUD] do     // The utilisation level of VMs currently running in the cloud is monitored
-                                 vmult(VMUlt) := VMUtmin
-   // The number of service requests to ensure that the require threshold is supplied
-                                  NumofSerReqt := NumMin
+                                 if VMCount <= NumMinn and ReqResources = false then
+    // The number of service requests to ensure that the require threshold is supplied
+                                    NumofSerReqt := NumMin
+                                  vmult(VMUlt) := VMUtmin
                                   print "Adequate number of service requests "
    // The number of VMs currently running in the cloud at the Tth interval is monitored
-                                  vmpool	:= Qminn
+                                  vmpool:= Qminn
                     systemstate(JobState, ProcessState, JobTime) := idle
     //Job requests and Job mappings paused due to an idle system state
                                     Mapping_Functions()
 	                               Request_Functions()
-                      print "Jobs are being queued"             
+                      print "System state is waiting"             
                 endpar

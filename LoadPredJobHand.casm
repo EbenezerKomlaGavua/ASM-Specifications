@@ -43,7 +43,8 @@ rule InitRule =
       if not terminate(self) then
 
 	  par
-	 	    HandleJob
+	 	  InitReqFunctions () 
+	 	      HandleJob
 	  		
 	  	print"-------------------------------"
 	  	 print"Output : Dur. of Simulation"
@@ -66,24 +67,26 @@ rule InitRule =
                    MonitorSerReq()
 // Call the VmRequest rule to supply the job handling session with virtual machines
                        VmRequest() 
+                workloadpred(WorkLoad_Prediction):= PWL_active
+                 print"Workload prediction is made"
  // Ensure that all the jobhandling resource list is available.
-                       while (JobHReslist_P) do
+                       while (JobHandReslist ) do
  // The  current Vm Utilisation threshold should be higher than the stated maximum utilisation limit
-                  if (|VMUlt| > |VMUTmax|) = true then
+                  if (|VmUlt| > |VmUTmax|) = true then
                   systemstate(JobState, ProcessState, JobTime):= active
                   print "job resource is checked"
                       print "job handling launched"  
                      forall vms in [0..(VMs-1)] do
-                    if (|VMUlt| > |VMUTmax|) = true then 
+                    if (|VmUlt| > |VmUTmax|) = true then 
  //Self healing is executed
-            	      selfhealing_su := active
+            	      selfhealing_su := ACTIVE
             	    if   (|VMUlt| > |VMUTmax|) = true  then
  //Execute resource-level scaling up
-            	         AR_su := active
+            	         AR_su := ACTIVE
             	     if (|VMUlt| < |VMUTmax|) = true then 
    //Execute resource-level scaling down
-            	         AR_VR_sd := active 
-            	      print "Job processing is active"
+            	         AR_VR_sd := ACTIVE 
+            	      print "System State is busy"
                endpar
                
                 

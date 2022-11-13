@@ -62,16 +62,16 @@ rule InitRule =
      program(self) :=undef
                 
          rule ScalVirResDown =
-                   par
+                   local VMLevel_SD in par
                            MonitorSerReq()
-                 while (JobHReslist_P) do
+                 while (JobHandReslist) do
                   systemstate(JobState, ProcessState, JobTime):= active
                   print "job resource has been checked"
                  if   (|VmUlt| < |VmUTmax|) = true  then  
-                           VMLevel_SD := active
+                           VMLevel_SD := ACTIVE
                   if   (|VmUlt| < |VmUTmin|) = true  then
-                             RLevel_SD := active
-                     print " Virtual Resource Scaling Down  is active"  
+                             RLevel_SD := ACTIVE
+                     print " System State is busy"  
                  endpar                    
 
 

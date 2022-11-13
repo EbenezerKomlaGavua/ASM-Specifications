@@ -20,8 +20,7 @@ derived CLOUD = Agents
 rule MonitorSerReq =
      par
      
-     											 workloadpred:= true
-                                             print"Workload prediction is made"
+
  // Requested Services and Existing services are supplied together with Job Queuing Resource List            
           while Supplied_Services and ServiceRequest(service, aresources) = true and JobQReslist_ip = active do
                             systemstate(JobState, ProcessState, JobTime) := active

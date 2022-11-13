@@ -58,16 +58,17 @@ rule InitRule =
 
 
          rule PreScalVirtRD =
-                   par
+                   local CostAware_SU, CalVmUL_, PredNumofSerReq_, _t_, _1_ in par
+                         
                           MonitorSerReq()
-                      while (JobHReslist_P) do
-                  systemstate(JobState, ProcessState, JobTime):= active
+                      while (JobHandReslist) do
+                  systemstate(JobState, ProcessState, JobTime):= ACTIVE
                   print "job resource is checked"
-                  PredNumofSerReq_(_t_+_1_) := active
- 						CalVmUL_(_t_+_1_):= active
+                  PredNumofSerReq_(_t_+_1_) := ACTIVE
+ 						CalVmUL_(_t_+_1_):= ACTIVE
  				  print "Service Requests predicted"
  		        if   (|VmUl(t+1)| > |VmUTmax|) = true  then  
-                        CostAware_SU := active
-                     print " Pre-scaling at specific intervals done"  
+                        CostAware_SU := ACTIVE
+                     print " System State is busy"  
                  endpar                    
 
